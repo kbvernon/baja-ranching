@@ -1,0 +1,576 @@
+---
+title: "Supplement B: Fitting Models"
+date: today
+format:
+  html: 
+    embed-resources: true
+    fig-align: center
+    fig-dpi: 300
+    fig-responsive: true
+    number-sections: true
+    number-depth: 3
+    toc: true
+    toc-depth: 3
+    smooth-scroll: true
+    theme: cosmo
+    highlight-style: a11y
+execute: 
+  echo: true
+  warning: false
+  error: false
+---
+
+<!-- 
+RStudio/Quarto is having some issues with figure sizing, 
+so using this hacky CSS solution. 
+-->
+
+```{css}
+#| echo: false
+
+.img-45 {
+  width: 4.5in;
+}
+
+.img-65 {
+  width: 6.5in;
+}
+
+```
+
+## Overview
+
+__Goal__: model the spatial distribution of ranch clusters and populations.  
+
+__Data__: Dr. Macfarlan's ethnographic data, along with ecological and socio-economic variables.  
+
+__Method__: binomial GLM for occupied vs abandoned, negative binomial for population
+
+We want to know what motivates market-integrated, subsistence ranchers to live where they do. This is framed as a trade-off between market integration and ecology.
+
+## R Preamble
+
+```{r libraries}
+
+library(MASS)
+library(broom)
+library(car)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(gt)
+library(patchwork)
+library(purrr)
+library(sf)
+library(sfdep)
+library(tidyr)
+library(viridis)
+           
+```
+
+Specify consistent plot theme here:
+
+```{r}
+#| code-fold: true
+
+theme_set(theme_bw(12))
+
+theme_update(
+  panel.grid = element_blank(),
+  plot.margin = margin(2,2,2,2),
+  strip.background = element_blank(),
+  strip.text = element_text(hjust = 0, size = rel(1.1))
+)
+
+```
+
+And some defaults for table formatting:
+
+```{r}
+#| code-fold: true
+
+rename_models <- function(x){
+  
+  x |> 
+    mutate(
+      model = case_when(
+        model == "occupied"   ~ "Occupied-Abandoned",
+        model == "population" ~ "Population",
+        model == "secure"     ~ "Population [+ secure]",
+        model == "securex"    ~ "Population [x secure]",
+        TRUE ~ NA
+      )
+    )
+  
+}
+
+format_double <- function(x){
+  
+  x |> mutate(across(where(is.double), \(.x){ round(.x, digits = 3) }))
+  
+}
+
+model_table <- function(x){
+  
+  x |> 
+    gt() |> 
+    tab_options(
+      column_labels.font.weight = "bold",
+      data_row.padding = px(6),
+      heading.align = "left",
+      heading.border.bottom.style = "hidden",
+      row.striping.background_color = "gray96",
+      row.striping.include_stub = FALSE,
+      row.striping.include_table_body = TRUE,
+      table.align = "left",
+      table.border.top.style = "hidden",
+      table.border.bottom.style = "hidden"
+    ) |> 
+    sub_missing(missing_text = "")
+  
+}
+
+```
+
+## Data
+
+### Geopackage
+
+Specify path to geopackage database holding all spatial vector data.
+
+```{r}
+
+gpkg <- here("data", "choyero.gpkg")
+
+```
+
+### Dependent variables
+
+* Occupied vs Abandoned ranches
+* Population size of occupied ranches
+
+Rancheros live in "ranch clusters" occupied by close kin. 
+
+```{r}
+
+ranches <- read_sf(gpkg, layer = "ranches")
+
+clusters <- read_sf(gpkg, layer = "clusters")
+
+```
+
+:::{.mx-auto .my-4 .img-65}
+![](../figures/overview-map.png)
+:::
+
+### Independent variables
+
+* Market-integration: cost-distance (sort of) to La Paz and Constitucion (hours)  
+* Ecology: cost-distance to springs (hours)  
+
+Cost-distance to La Paz/Ciudad Constitucion provides a proxy measure of access to markets where rancheros sell livestock and buy food and equipment. Cost-distance to springs represents habitat suitability for small-scale pastoralist economies. Measuring it is a complicated matter, as property rights are involved and multiple springs are used. To avoid some of that complexity, we take the average travel time from a ranch cluster to its two nearest springs. So, this is our basic trade-off between market-integration and local ecology. For further details about how we estimate this variable, see "R/leastcostpaths.html."   
+
+```{r}
+
+path_to_cities <- read_sf(gpkg, layer = "path_to_cities")
+
+path_to_springs <- read_sf(gpkg, layer = "path_to_springs")
+
+security <- ranches |>   
+  st_drop_geometry() |>
+  select(cluster, land) |> 
+  mutate(secure = ifelse(land == "secure", 1, 0)) |> 
+  group_by(cluster) |> 
+  summarize(secure = sum(secure)/n())
+
+clusters <- 
+  clusters |> 
+  mutate(
+    springs = path_to_springs$cost,
+    cities = path_to_cities$cost,
+    paz = path_to_cities$time_to_paz,
+    secure = security$secure
+  )
+
+remove(path_to_cities, path_to_springs, security, ranches)
+
+```
+
+## Analysis
+
+### Models
+
+In addition to a binomial model of the status of each ranch cluster (occupied vs abandoned), we fit a negative binomial model of the population count of occupied ranch clusters. The negative binomial is an alternative to standard Poisson models where there is an expectation of dispersion in the residuals. The Poisson model assumes that the variance is equal to the mean, but this is not always the case.
+
+```{r}
+
+models <- list(
+  
+  occupied = glm(
+    occupied ~ paz + springs,
+    family = binomial,
+    data = clusters
+  ),
+  population = glm.nb(
+    population ~ cities + springs,
+    data = clusters |> filter(population > 0) 
+  ),
+  secure = glm.nb(
+    population ~ (cities + springs) + secure,
+    data = clusters |> filter(population > 0) 
+  ),
+  securex = glm.nb(
+    population ~ (cities + springs) * secure,
+    data = clusters |> filter(population > 0)
+  )
+  
+)
+
+```
+
+### ANOVA (LRT)
+
+We conduct a Likelihood Ratio Test of the population models to see if adding land security makes a significant improvement to the model.
+
+```{r}
+
+lrt <- with(models, anova(population, secure, securex, test = "LRT"))
+
+```
+
+### Residual Autocorrelation
+
+We use Monte Carlo simulations of Moran's I to test for spatial autocorrelation in the untransformed residuals of each model.
+
+```{r}
+
+get_moran <- function(x, .sf){
+  
+  is_nb <- grepl("Negative Binomial", x$family[["family"]])
+  
+  if (is_nb) .sf <- .sf |> filter(occupied == 1)
+  
+  geometry <- st_geometry(.sf)
+  
+  neighbors <- st_knn(geometry, k = nrow(.sf)-1)
+  weights <- st_inverse_distance(neighbors, geometry)
+  
+  moran <- global_moran_perm(residuals(x), neighbors, weights)
+  
+  moran |> 
+    tidy() |> 
+    mutate(variable = "residuals", .before = 1)
+  
+}
+
+morans_i <- models |> 
+  map(\(.x){ get_moran(.x, clusters) }) |> 
+  bind_rows(.id = "model")
+
+```
+
+### Variance Inflation
+
+A model of variance inflation tests for multi-collinearity in the predictors. 
+
+```{r}
+
+vif <- models |> 
+  map(vif) |> 
+  bind_rows(.id = "model")
+
+```
+
+## Results
+
+### Model evaluation
+
+```{r}
+#| code-fold: true
+
+model_statistics <- models |> 
+  map(glance) |> 
+  # glance returns logLik column as numeric for glm and 'logLik" for negbin
+  map(\(.x){ mutate(.x, across(everything(), as.numeric)) }) |> 
+  bind_rows(.id = "model") |> 
+  format_double() |> 
+  rename_models() |> 
+  rename("n.obs" = nobs) |> 
+  relocate(model)
+
+model_statistics |> 
+  model_table() |> 
+  tab_header(title = "Model Statistics")
+
+```
+
+```{r}
+#| code-fold: true
+
+coefficient_estimates <- models |> 
+  map(tidy) |> 
+  bind_rows(.id = "model") |> 
+  format_double() |> 
+  rename_models() |> 
+  rename("z value" = statistic) |>
+  rename_with(gsub, pattern = "\\.", replacement = " ")
+
+coefficient_estimates |> 
+  group_by(model) |> 
+  model_table() |> 
+  tab_options(row_group.as_column = TRUE) |> 
+  tab_stubhead("model") |> 
+  tab_header(title = "Coefficient Estimates")
+
+```
+
+```{r}
+#| code-fold: true
+
+lrt <- lrt |> 
+  as_tibble() |> 
+  rename_with(tolower) |> 
+  format_double() |> 
+  mutate(
+    model = case_when(
+      model == "cities + springs"            ~ "Population",
+      model == "(cities + springs) + secure" ~ "Population [+ secure]",
+      model == "(cities + springs) * secure" ~ "Population [x secure]",
+      TRUE ~ NA
+    )
+  )
+
+lrt |> 
+  model_table() |> 
+  tab_header(
+    title = "Likelihood Ratio Test",
+    subtitle = "Alternative: difference in log-likelihood greater than zero"
+  )
+
+```
+
+```{r}
+#| code-fold: true
+
+morans_i <- morans_i |> 
+  format_double() |> 
+  rename_models() |> 
+  rename("rank" = parameter)
+
+morans_i |> 
+  select(model, statistic, rank, p.value) |> 
+  model_table() |> 
+  tab_header(
+    title = "Monte Carlo Simulations of Moran's I",
+    subtitle = "Alternative: spatial autocorrelation (two-sided)"
+  )
+
+```
+
+```{r}
+#| code-fold: true
+
+vif <- vif |> 
+  format_double() |> 
+  rename_models()
+
+vif |> 
+  model_table() |> 
+  tab_header(
+    title = "Variance Inflation",
+    subtitle = "Alternative: "
+  )
+
+```
+
+High VIF scores for interaction terms can be ignored.  
+
+```{r}
+#| echo: false
+
+save(
+  model_statistics, coefficient_estimates, morans_i, vif,
+  file = here("data", "model-statistics.rdata")
+)
+
+```
+
+### Marginal Response
+
+Here we calculate the marginal response of each response variable relative to change in each focal variable while holding all non-focal variables at their mean.
+
+```{r}
+
+# to make the lines smoother when plotting
+densify <- function(x, n = 300) seq(min(x), max(x), length = n)
+
+template <- with(
+  clusters, 
+  tibble(
+    paz = densify(paz),
+    cities = densify(cities),
+    springs = densify(springs)
+  )
+)
+
+estimate <- function(model, newdata){
+  
+  est <- predict(
+    model, 
+    newdata = newdata, 
+    se.fit = TRUE
+  )
+  
+  inv_link <- family(model)$linkinv
+  
+  est <- with(
+    est,
+    tibble(
+      y  = inv_link(fit),
+      hi = inv_link(fit + 2*se.fit),
+      lo = inv_link(fit - 2*se.fit)
+    )
+  )
+  
+  bind_cols(newdata, est)
+  
+}
+
+responses <- tibble(
+    model = c("occupied", "occupied", "population", "population"),
+    variable = c("paz", "springs", "cities", "springs")
+  ) |> 
+  mutate(
+    model_object = models[model],
+    data = list(template),
+    data = map2(data, variable, \(.x, .y){ .x |> mutate(across(-all_of(.y), mean)) }),
+    estimate = map2(model_object, data, estimate),
+    estimate = map2(estimate, variable, \(.x, .y){ rename(.x, "x" = all_of(.y)) })
+  ) |> 
+  select(model, variable, estimate) |> 
+  unnest(estimate) |> 
+  select(model, variable, x, y, hi, lo)
+
+```
+
+```{r}
+#| code-fold: true
+#| fig-asp: 1.1
+
+# add old data to display points
+observations <- map(models, \(.x){ .x$model })
+
+observations <- tibble(
+    model = c("occupied", "occupied", "population", "population"),
+    variable = c("paz", "springs", "cities", "springs")
+  ) |> 
+  mutate(
+    old_data = observations[model],
+    old_data = map2(old_data, variable, \(.x, .y){ rename(.x, "x" = all_of(.y)) }),
+    old_data = map2(old_data, model,    \(.x, .y){ rename(.x, "y" = all_of(.y)) })
+  ) |> 
+  unnest(old_data) |> 
+  select(model, variable, x, y)
+
+baja_labels <- c(
+    "paz" = "To La Paz",
+    "springs" = "To Springs",
+    "cities" = "To Cities"
+)
+
+gg_occupied <- ggplot() +
+  geom_ribbon(
+    data = responses |> filter(model == "occupied"),
+    aes(x, ymin = lo, ymax = hi),
+    fill = "#F5F5F5",
+    color = "transparent"
+  ) +
+  geom_line(
+    data = responses |> filter(model == "occupied"),
+    aes(x, y),
+    linewidth = 0.7
+  ) +
+  geom_point(
+    data = observations |> filter(model == "occupied"),
+    aes(x, y),
+    size = 2.5,
+    color = alpha("#2E4756", 0.7)
+  ) +
+  labs(
+    x = "Hours",
+    y = "Abandoned-Occupied"
+  ) +
+  facet_wrap(
+    vars(variable), 
+    scales = "free_x",
+    labeller = labeller(variable = baja_labels)
+  ) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title.x = element_blank()
+  )
+
+gg_population <- ggplot() +
+  geom_ribbon(
+    data = responses |> filter(model == "population"),
+    aes(x, ymin = lo, ymax = hi),
+    fill = "#F5F5F5",
+    color = "transparent"
+  ) +
+  geom_line(
+    data = responses |> filter(model == "population"),
+    aes(x, y),
+    linewidth = 0.7
+  ) +
+  geom_point(
+    data = observations |> filter(model == "population"),
+    aes(x, y),
+    size = 2.5,
+    color = alpha("#2E4756", 0.7)
+  ) +
+  labs(
+    x = "Hours",
+    y = "Population"
+  ) +
+  facet_wrap(
+    vars(variable),
+    scales = "free_x",
+    labeller = labeller(variable = baja_labels)
+  )
+
+gg <- gg_occupied/gg_population
+
+ggsave(
+  plot = gg,
+  here("figures", "response-plots.png"),
+  dpi = 600,
+  width = 5.75,
+  height = 5.75
+)
+
+```
+
+:::{.mx-auto .my-4 .img-45}
+![](../figures/response-plots.png)
+:::
+
+## Session Info
+
+```{r}
+#| code-fold: true
+
+# save the session info as an object
+pkg_sesh <- sessioninfo::session_info(pkgs = "attached")
+
+# inject the quarto info
+pkg_sesh$platform$quarto <- paste(
+  quarto::quarto_version(), 
+  "@", 
+  quarto::quarto_path()
+  )
+
+# print it out
+pkg_sesh
+
+```

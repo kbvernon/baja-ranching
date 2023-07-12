@@ -1,0 +1,557 @@
+---
+title: "Supplement A: Estimating Travel Cost"
+date: today
+format:
+  html: 
+    embed-resources: true
+    fig-align: center
+    fig-dpi: 300
+    fig-responsive: true
+    number-sections: true
+    number-depth: 3
+    toc: true
+    toc-depth: 3
+    smooth-scroll: true
+    theme: cosmo
+    highlight-style: a11y
+execute: 
+  echo: true
+  warning: false
+  error: false
+---
+
+<!-- 
+RStudio/Quarto is having some issues with figure sizing, 
+so using this hacky CSS solution. 
+-->
+
+```{css}
+#| echo: false
+
+.img-45 {
+  width: 4.5in;
+}
+
+.img-65 {
+  width: 6.5in;
+}
+
+```
+
+## Overview
+
+**Goal:** estimate cost-distance (in time) from each ranch to Ciudad Constitucion, La Paz, and local springs.  
+
+**Data:** a Digital Elevation Model (DEM) along with point locations for ranche clusters, springs, cities.  
+
+**Method:** Campbell's hiking function [@campbell2019].  
+
+There are two watersheds in the project area. Each one has a single road that connects it to Highway 1 and thus to the markets in Ciudad Constitucion to the north and the capitol La Paz to the south. The "road" that connects the watersheds to each other is not maintained and thus rarely used. As a consequence, nearly all of the variance in travel time to cities is found within each watershed. For that reason, we estimate the time it takes to leave each watershed ("leaving" here means hitting the edge of the project area), rather than the true time it takes to get to each city. We interpret this as the relative difference in time it takes to get to Ciudad Constitucion from the northern watershed and the relative difference in time it takes to get to La Paz from the southern watershed. To get to La Paz from the northern watershed, we simply add an arbitrary half hour to the total time to get out of that watershed. The same would presumably be the case to get to Ciudad Constitucion from the southern watershed, though that value does not factor into our analysis. 
+
+For springs, Dr. MacFarlan's ethnographic data suggest that individuals residing within the same ranch cluster tend to rely on one or two springs at most. Thus, we estimate road distance to the two nearest springs and take the average.  
+
+All spatial data are projected to the Mexico ITRF92 / UTM zone 12N CRS ([EPSG:4485](epsg.io/4485)).
+
+## R Preamble
+
+```{r libraries}
+
+library(dplyr)
+library(ggnewscale)
+library(ggplot2)
+library(here)
+library(hiker)
+library(sf)
+library(terra)
+library(viridis)
+
+```
+
+Specify consistent plot theme here:
+
+```{r}
+#| code-fold: true
+
+# this is designed to position the legend 
+# at the top left corner of the plot area
+
+theme_set(theme_bw(12))
+
+theme_update(
+  axis.text = element_text(size = rel(0.5), color = "gray45"),
+  axis.text.y = element_text(angle = 90, hjust = 0.5),
+  axis.ticks = element_line(color = "gray45", linewidth = 0.1),
+  axis.ticks.length = grid::unit(0.1, "cm"),
+  axis.title = element_blank(),
+  legend.background = element_rect(fill = "transparent", color = "transparent"),
+  legend.key.height = grid::unit(0.4, "cm"),
+  legend.key.width = grid::unit(0.3, "cm"),
+  legend.margin = margin(l = 0),
+  legend.justification = c("left", "top"),
+  legend.spacing.x = grid::unit(0.05, "cm"),
+  legend.spacing.y = grid::unit(0.05, "cm"),
+  legend.text = element_text(vjust = 0.7, margin = margin()),
+  legend.title = element_blank(),
+  panel.grid = element_blank(),
+  plot.title = element_text(size = rel(1.1), face = "bold")
+)
+
+point_colors <- c("#FDE74C", "#EE7733", "#0077BB")
+
+pretty_breaks <- function(x, .axis = "x", dx = 2500, n = 4){ 
+  
+  mn <- paste0(.axis, "min")
+  mx <- paste0(.axis, "max")
+  
+  brks <- seq(x[[mn]] + dx, x[[mx]] - dx, length.out = n)
+  
+  round(brks, digits = -3)
+  
+}
+
+```
+
+## Data
+
+### Geopackage
+
+Specify path to geopackage database holding all spatial vector data.
+
+```{r}
+
+gpkg <- here("data", "choyero.gpkg")
+
+```
+
+### Project Window
+
+```{r}
+
+bcs <- read_sf(gpkg, layer = "baja")
+
+window <- read_sf(gpkg, layer = "window")
+
+roads <- read_sf(gpkg, layer = "roads")
+
+watersheds <- read_sf(gpkg, layer = "watersheds")
+
+```
+
+### Elevation (DEM)
+
+```{r}
+
+dem <- rast(here("data", "dem_30m.tif"))
+
+```
+
+### O-D Points
+
+```{r}
+
+# ORIGIN ---
+clusters <- 
+  read_sf(gpkg, layer = "clusters") |>
+  mutate(variable = "cluster")
+
+# DESTINATION --- to city, terminus at edge of window
+terminus <- 
+  read_sf(gpkg, layer = "terminus") |>
+  mutate(variable = "terminus")
+
+springs <- 
+  read_sf(gpkg, layer = "springs") |>
+  select(id, name) |>
+  mutate(variable = "spring")
+
+```
+
+```{r}
+#| code-fold: true
+
+od_points <- clusters |> 
+  rename("name" = cluster) |> 
+  mutate(name = as.character(name)) |> 
+  select(name, variable) |> 
+  bind_rows(terminus, springs) |> 
+  mutate(variable = ifelse(variable == "terminus", "city", variable))
+
+bb8 <- st_bbox(window)
+dx <- bb8[["xmax"]] - bb8[["xmin"]]
+dy <- bb8[["ymax"]] - bb8[["ymin"]]
+
+# add hillshade relief to visualize elevation
+# https://dominicroye.github.io/en/2022/hillshade-effects/
+hillshade <- shade(
+  slope = terrain(dem, "slope", unit = "radians"),
+  aspect = terrain(dem, "aspect", unit = "radians"),
+  angle = 45,
+  direction = seq(45, 360, by = 45),
+  normalize = TRUE
+)
+
+hillshade <- mask(sum(hillshade), vect(st_union(watersheds)))
+names(hillshade) <- "shade"
+
+gg <- ggplot() +
+  geom_raster(
+    data = as.data.frame(hillshade, xy = TRUE),
+    aes(x, y, fill = shade)
+  ) +
+  scale_fill_distiller(
+    palette = "Greys", 
+    na.value = "transparent",
+    guide = "none"
+  ) +
+  new_scale_fill() +
+  geom_raster(
+    data = as.data.frame(dem, xy = TRUE),
+    aes(x, y, fill = elevation),
+    alpha = 0.7
+  ) +
+  scale_fill_distiller(
+    palette = "Greys", 
+    na.value = "transparent",
+    guide="none"
+  ) +
+  new_scale_fill() +
+  geom_sf(
+    data = watersheds, 
+    fill = "transparent", 
+    color = alpha("darkblue", 0.35),
+    linewidth = 0.2
+  ) +
+  geom_sf(
+    data = roads, 
+    color = "black",
+    linewidth = 0.3
+  ) +
+  geom_sf(
+    data = od_points, 
+    aes(shape = variable, fill = variable, color = variable),
+    stroke = 0.3,
+    size = 1.8
+  ) +
+  scale_color_manual(values = c("grey15", "white", "white")) +
+  scale_fill_manual(values = alpha(point_colors, 0.75)) +
+  scale_shape_manual(values = c(23, 22, 21)) +
+  coord_sf(datum = 4485) +
+  scale_x_continuous(
+    breaks = pretty_breaks(bb8, "x"), 
+    expand = expansion(add = 1000)
+  ) +
+  scale_y_continuous(
+    breaks = pretty_breaks(bb8, "y", n = 3), 
+    expand = expansion(add = 1000)
+  ) +
+  theme(legend.position = c(0.03, 0.98))
+
+ggsave(
+  plot = gg,
+  filename = here("figures", "od-points.png"),
+  dpi = 600,
+  width = 3.5,
+  height = 3.5 * (dy/dx)
+)
+
+```
+
+:::{.mx-auto .my-4 .img-45}
+![](../figures/od-points.png)
+:::
+
+## Path analysis
+
+To estimate least-cost paths, we first derive slope estimates from the DEM then calculate the hiking speed at which individuals can traverse any given cell using Campbell's hiking function. After that, we decrease the cost in units of time to traverse grid cells crossed by roads and other paths using weights that approximate travel times by car or horse. This is equivalent to increasing the speed one travels in those cells. Below are the specific weights we use.
+
+:::{.w-50 .mx-auto .py-4}
+| Type      | Weight | Approx. Speed     |
+|:----------|--------|:------------------|
+| primary   | 0.2    | 25 mph (41.5 kmh) | 
+| secondary | 0.5    | 10 mph (16.2 kmh) |
+| tertiary  | 0.8    | 07 mph (11.0 kmh) |
+
+: Down-weight for travel-cost
+:::
+
+```{r}
+
+primary_roads   <- roads |> filter(level == "P") |> st_buffer(dist = 30)
+secondary_roads <- roads |> filter(level == "S") |> st_buffer(dist = 30)
+tertiary_roads  <- roads |> filter(level == "T") |> st_buffer(dist = 30)
+
+terrain <- dem |> 
+  hf_terrain(max_slope = 35, decile = 30) |> 
+  hf_channel(primary_roads,   .m = 0.2) |> 
+  hf_channel(secondary_roads, .m = 0.5) |>
+  hf_channel(tertiary_roads,  .m = 0.8)
+
+remove(primary_roads, secondary_roads, tertiary_roads)
+
+```
+
+```{r}
+#| code-fold: true
+
+gg <- ggplot() +
+  geom_raster(
+    data = as.data.frame(hf_rasterize(terrain), xy = TRUE),
+    aes(x, y, fill = lyr.1)
+  ) +
+  scale_fill_viridis(
+    name = "Seconds",
+    breaks = c(10, 30, 50)
+  ) +
+  coord_sf(datum = 4485) +
+  scale_x_continuous(
+    breaks = pretty_breaks(bb8, "x"), 
+    expand = expansion(add = 1000)
+  ) +
+  scale_y_continuous(
+    breaks = pretty_breaks(bb8, "y"), 
+    expand = expansion(add = 1000)
+  ) +
+  guides(
+    fill = guide_colorbar(
+      barwidth = 3.8, 
+      barheight = 0.6,
+      raster = FALSE,
+      frame.linewidth = 0.2,
+      ticks.linewidth = 0.7,
+      title.position = "top"
+    )
+  ) +
+  theme(
+    legend.position = c(0.03, 0.98),
+    legend.direction = "horizontal",
+    legend.spacing.x = grid::unit(0.05, "cm"),
+    legend.text = element_text(size = rel(0.5), margin = margin(l = 2)),
+    legend.title = element_text(
+      size = rel(0.8), 
+      margin = margin(b = 2, t = 2),
+      hjust = 0
+    )
+  )
+
+ggsave(
+  plot = gg,
+  filename = here("figures", "cost-surface.png"),
+  dpi = 600,
+  width = 3.5,
+  height = 3.5 * (dy/dx)
+)
+
+```
+
+:::{.mx-auto .my-4 .img-45}
+![](../figures/cost-surface.png)
+:::
+
+### To springs
+
+```{r}
+
+to_springs <- hf_hike(
+  terrain, 
+  from = clusters, 
+  to = springs,
+  add_cost = TRUE
+)
+
+to_springs <-
+  to_springs |>
+  group_by(from) |> 
+  slice_min(cost, n = 2) |> # for each cluster, get two lowest cost paths
+  mutate(cost = (cost/3600)) |> # convert to hours 
+  summarize(
+    cluster = unique(from),
+    spring = paste(to, collapse = ","),
+    cost = mean(cost)
+  ) |> 
+  select(cluster, spring, cost)
+
+```
+
+### To cities
+
+Please note that travel time is not strictly to cities, but to the edge of the project area. As noted above, for the northern watershed, the time to La Paz equals the time it takes to leave the watershed plus half an hour. 
+
+```{r}
+
+north <- clusters |> 
+  st_filter(
+     st_union(filter(watersheds, id %in% c(3294, 3296, 3299)))
+  )
+
+south <- clusters |> 
+  st_filter(
+    filter(watersheds, id == 3326)
+  )
+
+### NORTH ###
+out_north <- hf_hike(
+    terrain, 
+    from = north, 
+    to = terminus[1, ], 
+    add_cost = TRUE
+  ) |> 
+  mutate(
+    cluster = north$cluster,
+    city = "Ciudad Constitucion", 
+    cost = (cost/3600),
+    watershed = "north"
+  )
+
+### SOUTH ###
+out_south <- hf_hike(
+    terrain, 
+    from = south, 
+    to = terminus[2, ], 
+    add_cost = TRUE
+  ) |> 
+  mutate(
+    cluster = south$cluster,
+    city = "La Paz",
+    cost = (cost/3600),
+    watershed = "south"
+  )
+
+to_cities <- 
+  bind_rows(out_north, out_south) |> 
+  mutate(time_to_paz = ifelse(watershed == "north", cost + 0.5, cost)) |>
+  select(cluster, city, cost, time_to_paz)
+
+remove(north, south, out_north, out_south)
+
+```
+
+### LCP Map
+
+```{r}
+#| code-fold: true
+
+paths <- bind_rows(
+  to_springs |> mutate(destination = "To springs"),
+  to_cities |> mutate(destination = "To cities")
+)
+
+gg <- ggplot() +
+  geom_raster(
+    data = as.data.frame(hillshade, xy = TRUE),
+    aes(x, y, fill = shade)
+  ) +
+  scale_fill_distiller(
+    palette = "Greys", 
+    na.value = "transparent",
+    guide = "none"
+  ) +
+  new_scale_fill() +
+  geom_raster(
+    data = as.data.frame(dem, xy = TRUE),
+    aes(x, y, fill = elevation),
+    alpha = 0.7
+  ) +
+  scale_fill_distiller(
+    palette = "Greys", 
+    na.value = "transparent",
+    guide="none"
+  ) +
+  new_scale_fill() +
+  geom_sf(
+    data = watersheds, 
+    fill = "transparent", 
+    color = alpha("darkblue", 0.35),
+    linewidth = 0.2
+  ) +
+  geom_sf(
+    data = roads, 
+    color = "black",
+    linewidth = 0.3
+  ) +
+  geom_sf(
+    data = paths |> st_buffer(125) |> group_by(destination) |> summarize(),
+    fill = "#C7FFED",
+    color = "#00291D",
+    linewidth = 0.2
+  ) +
+  facet_wrap(vars(destination)) +
+  geom_sf(
+    data = od_points, 
+    aes(shape = variable, fill = variable, color = variable),
+    stroke = 0.3,
+    size = ifelse(od_points$variable == "city", 2.2, 1.5) |> rep(2)
+  ) +
+  scale_color_manual(values = c("grey15", "white", "white")) +
+  scale_fill_manual(values = alpha(c(point_colors, 0.75))) +
+  scale_shape_manual(values = c(23, 22, 21)) +
+  coord_sf(datum = 4485) +
+  scale_x_continuous(
+    breaks = pretty_breaks(bb8, "x"), 
+    expand = expansion(add = 1000)
+  ) +
+  scale_y_continuous(
+    breaks = pretty_breaks(bb8, "y", n = 3), 
+    expand = expansion(add = 1000)
+  ) +
+  theme(
+    legend.position = c(0.01, 0.98),
+    strip.background = element_blank(),
+    strip.text = element_text(size = rel(1.1), hjust = 0)
+  ) 
+
+ggsave(
+  plot = gg,
+  filename = here("figures", "least-cost-paths.png"),
+  dpi = 600, 
+  width = 5.75,
+  height = 5.75 * (dy/(2*dx)) + 0.47
+)
+
+```
+
+:::{.mx-auto .my-4 .img-65}
+![](../figures/least-cost-paths.png)
+:::
+
+### Save
+
+```{r}
+
+write_sf(
+  to_springs,
+  dsn = gpkg,
+  layer = "path_to_springs"
+)
+
+write_sf(
+  to_cities,
+  dsn = gpkg,
+  layer = "path_to_cities"
+)
+
+```
+
+## References
+
+::: {#refs}
+:::
+
+## Session Info
+
+```{r}
+#| code-fold: true
+
+# save the session info as an object
+pkg_sesh <- sessioninfo::session_info(pkgs = "attached")
+
+# inject the quarto info
+pkg_sesh$platform$quarto <- paste(
+  quarto::quarto_version(), 
+  "@", 
+  quarto::quarto_path()
+  )
+
+# print it out
+pkg_sesh
+
+```

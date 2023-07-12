@@ -1,0 +1,132 @@
+id,ranch,cluster,community,occupied,population,land,cows,goats,notes,lat,long
+1,La Capilla,1,SMDT,1,3,secure,2,150,Field Verified,24.887221,-111.030898
+2,Escondido,1,SMDT,1,3,secure,0,70,Field Verified,24.884722,-111.028056
+3,Toris,2,SMDT,1,4,secure,30,50,Field Verified,24.900833,-111.025556
+4,Toris,2,SMDT,1,4,secure,20,140,Field Verified,24.898889,-111.028056
+5,Toris,2,SMDT,1,2,secure,35,55,Field Verified,24.899068,-111.027362
+6,Toris,2,SMDT,1,2,secure,50,0,Field Verified,24.898918,-111.027233
+7,Toris,2,SMDT,0,0,secure,15,30,field Verified: Abandonned recently for new ranch,24.899219,-111.0267169
+8,Toris,2,SMDT,1,3,secure,30,57,Field Verified,24.89895,-111.027148
+9,Pozo Verde - Toris,2,SMDT,1,3,secure,6,140,Field Verified,24.901667,-111.026667
+10,Toris,2,SMDT,1,4,secure,35,100,Field Verified,24.898353,-111.027382
+11,Toris,2,SMDT,1,3,secure,30,30,Field Verified,24.898788,-111.027281
+12,Toris (Marta & Jose Manuel - New),2,SMDT,1,5,secure,,,Field Verified,24.900587,-111.024692
+13,El Tunalito II,3,SMDT,1,4,insecure,2,35,Field Verified,24.979622,-110.944102
+14,El Tunalito I,3,SMDT,1,3,secure,6,5,Field Verified,24.979158,-110.94687
+15,Corral de Cardon - Llanos de Kakiwi,4,SMDT,1,2,insecure,1,50,Field Verified,24.985833,-110.8725
+16,Corral de Cardon 2,4,SMDT,1,3,insecure,,,Field Verified,24.985749,-110.872844
+17,Humi,5,SMDT,1,1,insecure,40,20,Field Verified,25.022185,-110.92178
+18,Llanos de Kakiwi,6,SMDT,1,3,insecure,8,150,Field Verified,24.996371,-110.88281
+19,Llanos de Kakiwi II,6,SMDT,1,5,insecure,8,200,Field Verified,24.996733,-110.881317
+20,La Huerta del Potrero,7,SMDT,0,0,insecure,,,Field Verified: Abandonned recently due to owner's poor health,25.00749,-110.935319
+21,San Jose de Las Tinajitas,8,SMDT,1,5,secure,70,80,Field Verified,25.035117,-110.894817
+22,La Fortuna,9,SMDT,1,3,secure,75,50,Field Verified,25.010833,-110.961667
+23,Casita Vieja,10,SMDT,0,0,insecure,,,field Verified: Abandonned recently due to owner's poor health,24.9725,-110.958611
+24,La Angostura,11,SMDT,1,2,insecure,0,70,Field Verified,24.944906,-110.976061
+25,Banderitas I,12,SMDT,1,3,secure,40,15,Field Verified,24.991111,-110.955278
+26,Banderitas II,12,SMDT,1,6,secure,50,50,Field Verified,24.989841,-110.954898
+27,Banderitas III,12,SMDT,1,3,secure,10,20,Field Verified,24.990283,-110.955917
+28,Palo Clavado I,13,SMDT,1,4,insecure,2,15,Field Verified,24.921705,-111.022877
+29,Palo Clavado II,13,SMDT,1,3,insecure,0,23,Field Verified,24.921584,-111.022686
+30,Canta Rana,14,SMDT,1,2,secure,,,Field Verified,24.850278,-111.078333
+31,Las Lagrimas,14,SMDT,1,2,secure,0,27,Field Verified,24.847352,-111.078962
+32,Hacienda La Presa,15,SMDT,1,3,secure,,,field verified: Part time habitation,24.870897,-111.05546
+33,Santa Rita,10,SMDT,1,3,secure,17,18,Field Verified,24.965556,-110.963611
+34,Primer Agua 1,17,LS,1,4,insecure,10,0,Field Verified,24.850745,-110.797955
+35,Primer Agua 2,17,LS,1,2,insecure,10,0,Field Verified,24.850278,-110.797778
+36,Primer Agua 3,17,LS,1,3,insecure,7,0,Field Verified,24.849722,-110.7975
+37,Primer Agua 4,17,LS,1,2,insecure,15,40,Field Verified,24.851944,-110.798056
+38,Primer Agua 5,17,LS,1,6,insecure,12,40,Field Verified,24.852216,-110.798299
+39,Primer Agua 6,17,LS,1,3,insecure,,,Field Verified: Not Interviewd,24.850484,-110.797223
+40,Matancita 1,18,LS,1,3,insecure,40,30,Field Verified,24.814167,-110.831944
+41,Matancita 2,18,LS,1,3,insecure,,,Field Verified: Not Interviewd,24.814332,-110.832846
+42,Abandoned Ranch (Maximo),18,,0,0,secure,,,Field Verified,24.8134,-110.835621
+43,Corral Falso 1,19,LS,1,5,insecure,15,100,Field Verified,24.808916,-110.856699
+44,Corral Falso 2,19,LS,1,4,insecure,40,90,Field Verified,24.808215,-110.859435
+45,Corral Falso 3,19,LS,1,6,insecure,20,30,Field Verified,24.80845,-110.859633
+46,San Dionisio,20,LS,1,3,insecure,22,50,Field Verified,24.810877,-110.864666
+47,Las Cuevas,21,LS,1,3,insecure,10,100,Field Verified,24.816811,-110.879424
+48,El Potrero 1,22,LS,1,1,secure,20,5,Field Verified,24.813012,-110.884708
+49,El Potrero 2,22,LS,1,1,insecure,42,130,Field Verified,24.8121,-110.8885
+50,Buena Vista,23,LS,1,1,insecure,,,Field Verified,24.821353,-110.821931
+51,Las Tunitas 1,24,LS,1,2,insecure,3,3,Field Verified,24.814705,-110.828196
+52,Las Tunitas 2,24,LS,1,4,insecure,12,100,Field Verified,24.81451,-110.828179
+53,La Soledad 1,25,LS,1,6,insecure,8,0,Field Verified,24.812977,-110.814639
+54,La Soledad 2,25,LS,1,1,insecure,12,0,Field Verified,24.813118,-110.81471
+55,La Trinidad de La Soledad,25,LS,1,1,secure,0,0,Field Verified,24.813347,-110.806123
+56,La Soledad 3,25,LS,1,3,insecure,5,15,Field Verified,24.812754,-110.814807
+57,La Soledad 4,25,LS,1,2,insecure,,,Field Verified,24.812705,-110.815385
+58,La Soledad 5,25,LS,1,1,insecure,,,Field Verified: Not Interviewd,24.812561,-110.815443
+59,El Bosque 1,26,LS,1,1,insecure,7,0,Field Verified,24.839899,-110.769793
+60,El Bosque 2,26,LS,1,6,insecure,,,Field Verified,24.839934,-110.769466
+61,Primer Bosque 1,27,LS,1,6,secure,4,25,Field Verified,24.835895,-110.779324
+62,Primer Bosque 2,27,LS,1,1,secure,2,0,Field Verified,24.835968,-110.779158
+63,La Purificacion 1,28,LS,1,2,insecure,,,Field Verified,24.83029,-110.797644
+64,La Purificacion 2,28,LS,1,2,insecure,3,0,Field Verified,24.831341,-110.7995
+65,Las Paredes 1,29,LS,1,4,insecure,4,40,Field Verified,24.829444,-110.809444
+66,Las Paredes 2,29,LS,1,3,insecure,20,0,Field Verified,24.83,-110.811111
+67,Rancho Nuevo 1,30,LS,1,5,insecure,25,100,Field Verified,24.838333,-110.805
+68,Los Queleles 1,31,LS,1,4,insecure,10,0,Field Verified,24.811549,-110.842145
+69,Los Queleles 2,31,LS,1,3,insecure,30,100,Field Verified,24.812547,-110.842508
+70,Los Queleles 3,31,LS,1,5,insecure,70,100,Field Verified,24.8125,-110.843333
+71,SPDLP 1,32,SPDLP,1,2,insecure,90,40,Field Verified,24.848717,-110.990033
+72,SPDLP 2,32,SPDLP,1,3,insecure,2,36,Field Verified,24.8502,-110.990333
+73,SPDLP 3,32,SPDLP,1,4,insecure,30,80,Field Verified,24.8498,-110.9893
+74,SPDLP 4,32,SPDLP,1,3,insecure,0,100,Field Verified,24.85005,-110.992467
+75,SPDLP 5a,32,SPDLP,1,3,insecure,10,20,Field Verified,24.845883,-110.9903
+76,SPDLP 5b,32,SPDLP,1,3,insecure,6,39,Field Verified,24.845883,-110.9903
+77,SPDLP 6,32,SPDLP,1,5,insecure,2,100,Field Verified,24.848517,-110.993
+78,SPDLP 7,32,SPDLP,1,2,insecure,,,Field Verified: Not Interviewd,24.846667,-110.99475
+79,SPDLP Weather Station,32,SPDLP,1,2,insecure,1,30,Field Verified,24.846783,-110.995167
+80,SPDLP 8,32,SPDLP,1,1,insecure,,,Field Verified: Not Interviewd,24.849652,-110.992261
+81,La Higuera Patron,33,LH,1,5,insecure,6,160,Field Verified,24.885983,-110.965469
+82,La Higuera 1,33,LH,1,3,insecure,5,36,Field Verified,24.882675,-110.965705
+83,La Higuera 2,33,LH,1,5,insecure,2,150,Field Verified,24.8847,-110.965867
+84,La Higuera 3,33,LH,1,5,insecure,3,170,Field Verified,24.885883,-110.965967
+85,La Higuera 4,33,LH,1,4,insecure,1,135,Field Verified,24.885517,-110.96555
+86,La Higuera 5,33,LH,1,5,insecure,0,30,Field Verified,24.885917,-110.965167
+87,La Higuera 6,33,LH,1,5,insecure,30,70,Field Verified,24.885267,-110.965717
+88,Las Parras,34,,0,0,insecure,,,Field Verified,24.840717,-110.981803
+89,El Paraje 1,35,,0,0,secure,,,Field Verified: but not interviewed,24.84388,-110.965258
+90,El Paraje 2,35,,0,0,secure,,,Field Verified: but not interviewed,,
+91,El Paraje de Tia Julia ,36,,0,0,secure,,,Local Informants Using Map Only,24.939105,-110.813626
+92,El Choyal ,37,,0,0,secure,,,Local Informants Using Map Only,24.929856,-110.843373
+93,Abandoned Rancho San Francisco,38,,0,0,secure,,,field Verified,24.9241,-110.897067
+94,Abandoned Ranch Nombre Maria,39,,0,0,secure,,,Field Verified,24.918533,-110.91405
+95,El Guatamote,40,,0,0,secure,,,Local Informants Using Map Only,24.89733,-110.950255
+96,Angel de La Guardia ,41,,0,0,secure,,,Verified on Google Earth and Located on Mexican Topo Maps,24.878088,-110.924528
+97,Las Cajoncitos ,42,,0,0,secure,,,Local Informants Using Map Only,24.867707,-110.887166
+98,Las Cuevas Tallamantes ,43,,0,0,secure,,,Local Informants Using Map Only,24.860008,-110.900109
+99,El Parraje de Pipi,44,,0,0,secure,,,Local Informants Using Map Only,24.892675,-110.783952
+100,El Cajon,45,,0,0,secure,,,Local Informants Using Map Only,24.890358,-110.803256
+101,Palo Verde,46,,0,0,secure,,,Local Informants Using Map Only,24.886371,-110.811011
+102,El Sausal,47,,0,0,secure,,,Local Informants Using Map Only,24.883551,-110.819623
+103,Abandoned Rancho El Rincon de Las Palmas,48,,0,0,secure,,,Field Verified,24.86825,-110.8069
+104,Abandoned Rancho Escondido,49,,0,0,secure,,,Field Verified,24.869733,-110.812483
+105,Las Casitas,50,,0,0,secure,,,Local Informants Using Map & On google earth,24.868297,-110.818869
+106,Abandond Rancho Pozo de Caballo,51,,0,0,secure,,,Field Verified,24.864383,-110.825567
+107,Poza Larga,52,,0,0,secure,,,Local Informants Using Map Only,24.856941,-110.83785
+108,PA,53,,0,0,secure,,,Local Informants Using Map Only,24.854801,-110.843736
+109,Piedra de Casa,54,,0,0,secure,,,Local Informants Using Map Only,24.860062,-110.84444
+110,LT,55,,0,0,secure,,,Local Informants Using Map Only,24.858657,-110.850997
+111,LP,56,,0,0,secure,,,Local Informants Using Map Only,24.849639,-110.866094
+112,Las Cuevas,57,,0,0,secure,,,On Mexican Topo Map,24.840976,-110.876656
+113,Abandoned Ranch Vinateria,58,,0,0,secure,,,Field Verified,25.028675,-110.934719
+114,LS,59,,0,0,secure,,,Local Informants Using Map Only,24.830247,-110.874087
+115,Abandoned Ranch Near Matancitas,60,,0,0,secure,,,Field Verified,24.930227,-110.993427
+116,Potential Abandoned Ranch Near Santa Rita,61,,0,0,secure,,,Assessed via Google Earth,24.954861,-110.965701
+117,Abandoned Ranch San Basilio,62,,0,0,secure,,,Field Verified,24.838561,-111.085973
+118,Abandoned Ranch El Ciruelo,63,,0,0,secure,,,Field Verified,24.831894,-111.092311
+119,El Ciruelo,64,,0,0,secure,,,Field Verified: but not interviewed,24.815699,-111.086765
+120,El Guamuchil,65,,0,0,secure,,,Field Verified: but not interviewed,24.835883,-111.075483
+121,Abandoned Ranch Chicural,66,,0,0,secure,,,Field Verified,24.835171,-111.056385
+122,Abandoned Ranch Malo Tu Tia,67,,0,0,secure,,,Field Verified,24.824833,-110.820333
+123,Abandoned Rancho Paraje del Gavilan ,68,,0,0,secure,,,Local Informants Using Map Only,24.893543,-111.025726
+124,Abandoned Rancho La Huerta del Pilo/El Guamuchil,69,,0,0,secure,,,Field Verified,24.893097,-111.034155
+125,El Muro II,70,SMDT,1,3,insecure,0,40,Field Verified,24.887272,-111.033258
+126,El Muro,70,SMDT,1,7,insecure,45,100,Field Verified,24.886111,-111.033333
+127,El Muro III,70,SMDT,1,4,insecure,1,47,Field Verified,24.8868,-111.033867
+128,Matancita 0,71,SMDT,1,6,insecure,7,80,Field Verified,24.9325,-110.986111
+129,Abandoned Ranch Unnamed from 1940s ,72,,0,0,secure,,,Local Informants Using Map Only,24.90024,-111.030195
+130,San Jose de Las Tinajitas II,8,SMDT,1,2,secure,,,Field Verified: Not Interviewd,25.0346,-110.90437
+131,Abandoned Rancho Las Cuevas,74,,0,0,secure,,,Field Verified,24.948483,-110.867283
