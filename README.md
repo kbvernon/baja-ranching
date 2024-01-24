@@ -15,7 +15,7 @@ This repository contains the data and code for our paper:
 > [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0001-7977-8568)
 > and Shane Macfarlan
 > [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6332-9829)
-> (2023). Market integration mediates human-environment interactions among traditional ranchers in Baja, Mexico.
+> (2023). Trade-off between market and ecosystem services drives settlement decisions among smallholder ranchers in Baja California Sur, Mexico.
 > *Sustainability Science*.
 
 **Preprint**: [manuscript.pdf](/manuscript/manuscript.pdf)  
@@ -52,19 +52,12 @@ the data can be found in a GeoPackage database called
 to git integration, so we note two ways to reconstruct it here. First, by running the necessary scripts. Assuming you're in the `baja-ranching` project folder, the following
 is sufficient to build a local copy of the database:  
 
-```
-source("./R/data_wrangling.R")
-quarto::quarto_render("./R/least-cost-paths.qmd")
-```
+```r
+library(here)
+library(quarto)
 
-Alternatively, if you are less interested in trying to replicate the steps required to generate the final data set used to train the models, you can simply download the database from Zenodo by running this: 
-
-```
-download.file(
-  url = "https://zenodo.org/record/<record-id-here>/choyero.gpkg?download=1", 
-  destfile = "./data/choyero.gpkg", 
-  mode = "wb"
-)
+here("R", "data_wrangling.R") |> source()
+here("R", "least-cost-paths.qmd") |> quarto_render()
 ```
 
 ## 📈 Replicate analysis
@@ -72,7 +65,7 @@ download.file(
 To replicate the analysis, it's sufficient to compile the Quarto document `models.qmd`. 
 
 ```
-quarto::quarto_render("./R/models.qmd")
+here("R", "models.qmd") |> quarto_render()
 ```
 
 ## License  
