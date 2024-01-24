@@ -1,5 +1,5 @@
 ---
-title: Market integration mediates human-environment interactions among traditional ranchers in Baja California Sur, Mexico
+title: Trade-off between market and ecosystem services drives settlement decisions among smallholder ranchers in Baja California Sur, Mexico
 date: today
 author:
   - name: Kenneth B. Vernon
@@ -35,24 +35,22 @@ author:
       - ref: utah-anthropology
       - ref: gcsc
 target-journal:
-  - "Nature Sustainability"
-  - "Human Ecology"
-  - "PNAS"
+  - "Sustainability Science"
 abstract: |
-  Market integration presents new opportunities and challenges for traditional communities still engaged in a largely subsistence-based economy. In this paper, we explore one particular aspect of that dynamic: how market integration affects the way that populations of historically marginalized ranchers distribute themselves across a landscape, where they feel the competing pull of urban amenities and local ecosystem services. Our study focuses on a small community of ranchers living in kin-based ranch clusters in the rugged and arid landscapes of the Sierra de la Giganta mountains along the eastern spine of the Baja California peninsula in Mexico. Our models show that ranch clusters are more likely to be abandoned the farther they are from surficial springs, and occupied ranch clusters have larger populations the closer they are to markets. This has important consequences for the ecological resilience of this ranching community, particularly in the context of climate change.
+  While smallholder food producers increasingly depend on goods and services provided by distant markets, they are still constrained by their local ecology, as their rural communities often lack many of the infrastructural advantages of urban centers. Navigating the costs and benefits of market and ecosystem services is, as a consequence, crucial to their livelihoods and overall well-being. Here, we explore one aspect of that market-ecology trade-off: its effect on the residential choice behavior of ranchers living in the arid Sierra de la Giganta mountains along the eastern spine of the Baja California peninsula in Mexico. We rely on two Generalized Linear Models (GLMs), a binomial GLM of the locations of occupied and abandoned ranches and a Poisson GLM of population size at occupied ranches. Our proxies for market integration and ecosystem services are travel-time estimates to surficial springs and distant cities. By using these travel time estimates, we enhance the ethnographic study of residential choice behavior in smallholder systems by drawing on key innovations from urban and economic geography. Our models show that ranch clusters are more likely to be abandoned the farther they are from surficial springs, and occupied ranch clusters have larger populations the closer they are to markets. This has important consequences for the ecological resilience of this ranching community, particularly in the context of climate-induced drought, which may lead to ranching strategies that are more locally resilient but less profitable on the market. At the same time, market integration may reshape the social structure of these communities, introducing new incentives that lead them to further integrate with and increasingly depend on those markets. All of these changes are exacerbated by demographic processes, in particular the explosive growth of the region's urban centers.
 keywords:
-  - Market Integration
-  - Ideal Free Distribution
-  - Behavioral Ecology
+  - Habitat Suitability
+  - Land Use 
+  - Transportation
   - Sustainability
   - Urbanization
   - Land Abandonment
 corresponding_author: Kenneth.Vernon@colorado.edu
 linenumbers: false
-watermark: false
 bibliography: bibliography.bib
 format:
   simple-pdf: default
+  docx: default
 execute: 
   echo: false
   error: false
@@ -65,20 +63,609 @@ library(dplyr)
 library(gt)
 library(here)
 library(knitr)
+library(readr)
 
 ```
 
 # Introduction
 
-In traditional, small-scale subsistence economies, the value of a habitat is typically a function of its local resources, particularly their distribution and abundance. As individuals integrate with modern markets, however, that connection becomes more tenuous. This can be a good thing, of course, allowing individuals to diversify their livelihood, making them more flexible and capable of absorbing potential risks and uncertainty [@barrett2001; @little2001]. But, it can have other, unforeseen consequences, too, especially as individuals come to depend on markets for their livelihood. For those living in predominantly marginal habitats, it may even have the opposite effect, making them more sensitive to the effects of climate change and other exogenous forces like infrastructure development and range fragmentation [@fratkin2001; @hobbs2008; @thornton2009]. Together, these conflicting outcomes suggest important trade-offs for individuals presented with the opportunity to integrate more closely with modern markets. Time and energy they put into accessing regional market services is often time and energy they cannot spend accessing local ecosystem services. How they navigate that trade-off can have important consequences for their health and well-being [see, for example, @liebert2013; @urlacher2016; @stagaman2018], including dramatic changes to their life history and demography [@shenk2016; @colleran2015]. It is, thus, critically important to understand how and to what degree individuals choose to integrate with modern markets.
+In traditional, small-scale subsistence economies, the value of a habitat is
+typically a function of its local resources, particularly their distribution and
+abundance [@moran2022]. As individuals integrate with modern markets, however,
+that connection becomes more tenuous. This can be a good thing, of course,
+allowing individuals to diversify their livelihood, making them more flexible
+and capable of absorbing potential risks and uncertainty [@barrett2001;
+@little2001]. But, it can have other, unforeseen consequences, too, especially
+as individuals come to depend on markets for their livelihood. For those living
+in predominantly marginal habitats, it may even have the opposite effect, making
+them more sensitive to the effects of climate change and other exogenous forces
+like infrastructure development, range fragmentation, and land insecurity
+[@fratkin2001; @hobbs2008; @thornton2009]. Together, these conflicting outcomes
+suggest important trade-offs for individuals presented with the opportunity to
+integrate more closely with modern markets. Time and energy they put into
+accessing regional market services is often time and energy they cannot spend
+accessing local ecosystem services. How they navigate that trade-off can have
+important consequences for their health and well-being [see, for example,
+@liebert2013; @urlacher2016; @stagaman2018], including dramatic changes to their
+life history and demography [@shenk2016; @colleran2015]. It is, thus, critically
+important to understand how and to what degree individuals choose to integrate
+with modern markets.
 
-Here we explore that question, focusing on a small group of historically marginalized rural ranchers living in the arid Sierra de la Giganta region of Baja California Sur, Mexico [@macfarlan2020a, see @fig-overview-map]. While these people are sometimes referred to as "choyeros", a local nickname for anyone born in the rural, mountainous ranching communities of Baja California Sur (also a reference to the local cholla cactus, *Cylindropuntia cholla*), in this paper, we refer to them simply as "ranchers" or "rancheros", which are the expressions they typically use to describe themselves. Descended from Euro-American colonists who began settling the region in the late-17th century [@crosby1994], they number approximately 4,000 today, living in communities largely organized around clusters of one or more ranches housing inter-generational kin. These communities are some of the most severely under-served in the region, lacking access to critical services and infrastructure, including piped water, sanitation, and energy [@secretaríadedesarrollosocial2021].
+To explore this issue, we focus on a small group of historically marginalized
+rural ranchers living in the arid Sierra de la Giganta region of Baja California
+Sur (BCS), Mexico [@macfarlan2020a, see @fig-overview-map]. We first explore how
+market integration and local ecology structure the distribution of occupied and
+abandoned ranch clusters. This is a process that took place over several hundred
+years, with the shift to its current distribution beginning in the late 1970s,
+following construction of the transpeninsular Federal Highway 1 [@barkenbus1974;
+@mathes2015]. We then ask how market integration and local ecology have shaped
+the distribution of the population across occupied clusters today.
 
-Given the aridity of the area and lack of regionally connective water infrastructure, rancheros depend almost entirely on surficial springs to satisfy their water needs, including drinking water for themselves and their livestock, as well as irrigation for garden plots (known as huertas and jardines), which provide a small supplement to human and livestock diets during dry periods [@macfarlan2020a; @macfarlan2020b; @schniter2021; @lerback2022]. To make use of springs, ranchers either have to pump water themselves, using gas or solar powered equipment, or transport it by gravity irrigation [@lerback2022]. A strong incentive thus exists to locate in closer proximity to these water resources.
+## Historical Context
 
-A similar, though competing, incentive exists for accessing markets in urban areas like Loreto, Ciudad Constitución, and La Paz, the capital of Baja California Sur. These cities furnish rural ranchers with many of the necessities they cannot acquire locally, including the ability to trade livestock, register animals with the state, receive medical attention, renew water permits, purchase groceries, and socialize with people outside their local community. The chance for supplemental income will also on occasion draw rancheros to the cities, as it has for pastoralists elsewhere [@barrett2001; @little2001]. This includes working in construction, seasonal employment in coastal fisheries, or the tourist sector, specifically within the resort towns of Cabo San Lucas and San Jose del Cabo.
+While these people are sometimes referred to as "choyeros", a local nickname for
+anyone born in the rural, mountainous ranching communities of BCS (also a
+reference to the local cholla cactus, *Cylindropuntia cholla*), in this paper,
+we refer to them simply as "ranchers" or "rancheros", which are the expressions
+they typically use to describe themselves. Descended from Euro-American
+colonists who began settling the region in the late-17th century [@crosby1994],
+they number approximately 4,000 today, living in communities largely organized
+around clusters of one or more ranches housing inter-generational kin
+[@macfarlan_etal2020a].
 
-As a baseline for investigating the demographic consequences of these competing necessities, we first explore how market integration and local ecology structure the distribution of occupied and abandoned ranch clusters. This is a process that took place over several hundred years, with the shift to its current distribution beginning in the late 1970s, following construction of the transpeninsular Federal Highway 1 [@barkenbus1974]. We then ask how market integration and local ecology have shaped the distribution of the population across occupied clusters today.
+Historically, the isolation of these rural ranching communities in the
+mountainous hinterlands of the Sierra de la Giganta meant that getting to the
+markets found in nearby urban centers (mostly in the capital of La Paz) was an
+extremely costly endeavor, even more so than it is today. This had two important
+consequences for these rural ranchers. First, while they do rely on markets for
+many of their subsistence needs, local food production still contributes to a
+substantial portion of their diet [@macfarlan_etal2023a], meaning they are
+neither fully subsistence-based nor fully market integrated. For this reason,
+they are more accurately characterized as smallholder ranchers rather than pure
+subsistence ranchers or pastoralists [@ifad2013]. Second, their communities
+remain some of the most severely under-served in the region, lacking access to
+critical services and infrastructure, including piped water, sanitation, and
+energy [@secretaríadedesarrollosocial2021].
+
+Given the aridity of the area and lack of regionally connective water
+infrastructure, rancheros depend almost entirely on surficial springs to satisfy
+their water needs, including drinking water for themselves and their livestock,
+as well as irrigation for garden plots (known as huertas and jardines), which
+provide a small supplement to human and livestock diets during dry periods
+[@macfarlan2020a; @macfarlan_etal2020a; @schniter2021; @lerback2022]. To make
+use of springs, ranchers either have to pump water themselves, using gas or
+solar powered equipment, or transport it by gravity irrigation [@lerback2022]. A
+strong incentive thus exists to locate in closer proximity to these water
+resources.
+
+A similar, though competing, incentive exists for accessing markets in urban
+areas like Loreto, Ciudad Constitución, and La Paz, the capital of BCS. These
+cities furnish rural ranchers with many of the necessities they cannot acquire
+locally, including the ability to trade livestock, register animals with the
+state, receive medical attention, renew water permits, purchase groceries, and
+socialize with people outside their local community. The chance for supplemental
+income will also on occasion draw rancheros to the cities, as it has for
+pastoralists elsewhere [@barrett2001; @little2001]. This includes working in
+construction, seasonal employment in coastal fisheries, or the tourist sector,
+specifically within the resort towns of Cabo San Lucas and San Jose del Cabo.
+
+Complicating matters is the fact that land privatization serves as an effective
+constraint on these dynamics. This is important because pastoralists have
+historically lacked clear title to land, instead relying on open rangeland
+systems [@behnke1994; @turner1999]. In Mexico, these systems take the form of
+*ejidos*, or areas of communal agricultural land. The first *ejidos* were
+established by the Mexican state in the early part of the twentieth century
+[@perramond2008], though in our project area they did not arrive until 1975
+[@dof1975] and 1976 [@dof1976], respectively. While these *ejidos* have
+historically served as a buffer against land fragmentation, allowing rancheros
+to maintain their way of life, their ability to play that role continues to
+change as the pace of privatization and shifting land tenure accelerates
+[@lesorogol2003; @reid_etal2008].
+
+In BCS (along with the rest of Mexico), the Agrarian Land Reforms of 1992 played
+an outsized role in driving these changes, as they introduced powerful new
+incentives for *ejidos* to parcelize collective land holds and allocate private
+rights to individuals [@barnes2009]. While note the sole cause, this new
+property regime has increased uncertainty and insecurity about land title and
+exposed the region to speculation from real estate markets. As has happened
+elsewhere, these privatization efforts appear to be led by NGOs, commercial
+interests, and other external forces, with the result being greater
+fragmentation of pastoral rangeland systems and increased uncertainty about land
+use [@burnsilver_etal2008; @galvin2009]. For the rural ranchers of the Sierra de
+la Giganta, this process of fragmentation and increasing insecurity at least
+partially explains why ranches of related individuals tend to cluster.
+Rancheros, unable to find new land for themselves, simply build ranches next to
+their kin on land that is at least historically associated with their family.
+
+To summarize, we want to know how traditional rural ranchers in BCS navigate the
+competing costs and benefits of market integration and local ecosystem services.
+This is done by estimating their contribution within a regression framework to
+the location and size of ranch clusters in two east-west running watersheds
+along the southern extent of the Sierra de la Giganta range. Given the extreme
+ecological constraints that characterize this region, especially the aridity of
+the region, we expect water management to play a substantial role in individual
+settlement decisions. Privatization may impose an additional constraint on this
+system, especially as it has served to increase land insecurity.
+
+# Methods
+
+## Study Area
+
+As shown in @fig-overview-map, our study area encompasses two east-west running
+watersheds with a combined area of roughly 1,042 km$^2$. The area is
+approximately equidistant in Cartesian terms between the two nearest urban
+centers, being approximately 85 km from Ciudad Constitucion and 95 km from La
+Paz. This is an extremely rugged and mountainous terrain (see
+@fig-context-photos C), as the elevation of this area ranges from 0 to 980 m,
+with a mean of 427 m and a variance of 142 m. The average slope is around 15°.
+For reference, just 35 km southwest of the study region, between it and Federal
+Highway 1, the average slope over a comparable area is just 0.8°.
+
+As mentioned above, this is also an extremely arid region. It is a southern
+extension of the Sonoran Desert Biogeographic Region, so the area is dominated
+by columnar cacti and xeric scrub [@shreve_wiggins1964;
+@leondelaluz_dominguezcadena2006] capable of sustaining themselves in a place
+that averages only 200 mm of rainfall every year [@rebman_roberts2012]. This
+circumstance is not helped by the lack of surficial freshwater stocks
+[@maya1997], with the only permanent sources of naturally occurring freshwater
+being arid-land springs [@grismer1993; @macfarlan2020a; @macfarlan_etal2020a;
+@macfarlan2021]. @lerback2022 provides a fine-grained analysis of these spring
+systems in the project area, describing them as primarily lentic pools at low
+points in the arroyos (see @fig-context-photos B).
+
+## Models
+
+To evaluate the determinants of ranch occupation and population size, we rely on
+two generalized linear models (GLMs). We use the first GLM to evaluate whether
+market integration or local ecology has played a larger role in structuring the
+distribution of occupied and abandoned ranch clusters. For this model we assume
+that the dependent variable, whether a ranch cluster is occupied or abandoned,
+has a binomial distribution and is related to the linear predictor by the logit
+link: $$
+\begin{aligned}
+Y &\sim B(n, p) \\
+E[Y/n] &= p \\
+logit(p) &= \beta_{0} + \beta_{1} D(La\; Paz) + \beta_{2} D(Springs)
+\end{aligned}
+$$ with $n$ being the number of ranch clusters, $p$ the probability that a ranch
+cluster is occupied, and $D(x)$ the travel time from a ranch cluster to $x$ (see
+below for more details about how we calculate this).
+
+We use the second GLM to identify which variable contributes more to the
+distribution of rancher populations across currently occupied clusters, with an
+additional variable representing land security, or the proportion of ranch
+houses within a cluster having clear title to their property, as this may
+mediate ranch population size. For this model, we assume that the dependent
+variable, the population size of a ranch cluster, has a negative binomial
+distribution and is related to the linear predictor by the log link: $$
+\begin{aligned}
+Y &\sim NB(\lambda, k) \\
+E[Y] &= \lambda \\
+log(\lambda) &= \beta_{0} + \beta_{1} D(Cities) + \beta_{2}D(Springs) + \beta_{3} P(Security)
+\end{aligned}
+$$ with $\lambda$ being the average number of individuals per ranch cluster, $k$
+a dispersion parameter, and $P(Security)$ the proportion of ranches in a ranch
+cluster that are secure. The use of a negative binomial rather than the standard
+Poisson model for count data is preferred here to account for dispersion, or
+circumstances in which the variance deviates from the mean, which violates a key
+assumption of the Poisson distribution.
+
+Before continuing, we would like to emphasize an important historical dimension
+to this research, namely, that the process leading to the current distribution
+of occupied and abandoned ranch clusters played out before Ciudad Constitucion
+(the large urban area to the north of our study area) offered significant market
+benefits. This is reflected in how we specify each model. The model of occupied
+and abandoned ranch clusters includes only proximity to La Paz, $D(La\; Paz)$,
+as a measure of market integration, which historically was the only market that
+ranchers accessed prior to the construction of Federal Highway 1. The model of
+population distributions across occupied ranches, however, includes travel time
+to La Paz and Ciudad Constitucion, $D(Cities)$, as both have offered markets
+regularly used by ranchers in our study population today.
+
+## Data
+
+The dependent variables, occupation status ($p$) and population size
+($\lambda$), we obtain from Mexico's online Catálogo do Localidades
+[@secretaríadedesarrollosocial2021], coupled with fieldwork conducted over
+several years beginning in 2014. In total, the sample includes 72 ranch
+clusters, with 39 being unoccupied or abandoned and the remaining 33 being
+occupied by 290 individuals. The number of individuals per ranch cluster ranges
+from 1 to 32, with a mean of 8.8. To provide additional context,
+@fig-context-photos B shows an example of an abandoned ranch.
+@fig-context-photos C shows a cluster of currently occupied ranches.
+
+The independent variables, market integration and habitat suitability, we
+operationalize using three estimates of travel time: (i) one to La Paz, (ii) one
+to Ciudad Constitucion or La Paz (depending on the watershed), and (iii) one to
+local springs, with each involving a mix of pedestrian and automotive travel.
+The first two variables are our proxies for market integration, under the
+assumption that increased interaction with markets will positively covary with
+proximity to the cities. The third variable, travel time to springs, is our
+proxy for habitat suitability, as water is a critical resource in this arid
+environment. In the binomial GLM, which examines the distribution of abandoned
+versus active ranching clusters, we use only travel time to La Paz (i) as Ciudad
+Constitucion did not offer a significant market when those locations were being
+established. We then use travel time to both Ciudad Constitucion and La Paz (ii)
+in the negative binomial GLM examining ranch-cluster population sizes. travel
+time to springs (iii) is used in both models, on the assumption that the
+location of active streams would not have changed during the period of time in
+question [@grismer1993].
+
+We define land security as the proportion of ranch houses within a cluster with
+clear title to land or who are registered members of an *ejido*. Information on
+this is provided by Mexico's National Institute of Statistics and Geography
+[@registroagrarionacional2019] and by ethnographic observation. Of the occupied
+ranch clusters, only 8 are fully secure, meaning all ranch houses within the
+cluster have full title to their property. Of the remaining 25, less than half
+of their ranch houses are secure.
+
+A summary of these data can be found in @tbl-variables.
+
+## Travel time
+
+The critical variable in our models is travel time, $D(x)$. This has been used
+as a proxy for market integration in other studies focusing on largely
+subsistence-based economies [see especially @gurven2017], with models exploring
+its relationship to, among other things, social status [@schultz2019], hunting
+effort and efficiency [@luz2015], and oral tradition [@schniter2018]. An
+important advantage of our analysis, however, is that we use travel time as a
+proxy for both market integration and ecosystem services. Specifically, we use
+travel time to major cities as a proxy for market integration and travel time to
+local surficial springs as a proxy for ecosystem services. This allows for more
+straightforward comparisons of their relative contributions to settlement
+outcomes, which can then be readily interpreted as strategies for navigating
+trade-offs between those two variables. The use of these travel-time estimates
+also makes our models analogous to models from urban and economic geography,
+where travel time (or, more generally, transport costs) to and from locations
+providing various goods and services is assumed to be a key determinant of
+residential choice [@alonso1964; @lee_etal2010; @acheampong_silva2015;
+@waddell_etal2007].
+
+To estimate travel time, we first derive a gridded cost surface from a 30-meter
+resolution digital elevation model obtained from the National Elevation Dataset
+provided by the United States Geological Survey. This is achieved by applying
+Campbell's hiking function [@campbell2019] to slope estimates extracted from the
+elevation model. The result is a cost surface where the value of each 30-meter
+grid cell represents the time in seconds it would take to traverse that cell.
+
+Three important assumptions underlie the cost-surface model. First, we assume
+that the average walking speed of a rancher is approximately equal to the third
+decile of US hikers (about 2.5 meters per second over flat ground), which
+increases or decreases based on slope. Second, we assume that no individual will
+traverse a slope greater than 35 degrees. Obviously, there will be exceptions to
+this, but ethnographic observation does suggest that it is true in general for
+the rancheros in this region. Plus, our distance measure is used for relative
+comparisons, making the precise absolute value of limited concern. Finally, we
+assume that travel on roads and built paths will be less costly than through
+grid cells where vegetation and other landform characteristics provide obstacles
+to travel. In the cost surface, this is achieved by first classifying paths as
+primary (for maintained roads), secondary (for non-maintained roads), and
+tertiary (for walking paths), and then weighting the travel cost associated with
+each by 0.2, 0.5, and 0.8, respectively. This is equivalent to increasing the
+speed of travel to 12.5, 5, and 3.125 m/s, making the speeds more comparable to
+driving a car or riding a horse along the primary and secondary paths, which is
+what the ranchers here do when going to the city or visiting their springs or
+neighbors. All road paths were digitized manually using Google Earth and
+validated through field observation.
+
+Once we have this cost surface, we then use Djikstra's algorithm
+[@cormen_etal2001] to identify least-cost paths from ranch clusters to springs
+and cities and, thus, the total time it takes to travel from each origin to each
+destination. These are shown in @fig-shortest-paths. We note, however, that
+strictly speaking, we do not measure travel time to the cities, just to the edge
+of the study region in the direction of Federal Highway 1, for both the northern
+and southern watersheds. Each one has a single road that connects it to Highway
+1 and thus to the markets in Ciudad Constitucion to the north and the capital La
+Paz to the south. The "road" that connects the watersheds to each other is
+poorly maintained, difficult to traverse, and only used out of necessity. As a
+consequence, nearly all of the variance in travel time to cities is found within
+each watershed. For that reason, we estimate the time it takes to leave each
+watershed ("leaving" here means hitting the edge of the project area), rather
+than the true time it takes to get to each city. We interpret this as the
+relative difference in time it takes to get to Ciudad Constitucion from the
+northern watershed and the relative difference in time it takes to get to La Paz
+from the southern watershed. To get to La Paz from the northern watershed, we
+simply add an arbitrary half hour to the total time to get out of that
+watershed. The same would presumably be the case to get to Ciudad Constitucion
+from the southern watershed, though that value does not factor into our
+analysis. For springs, our ethnographic data reveal that individuals residing
+within the same ranch cluster tend to rely on one or two springs at most
+[@lerback2022]. Thus, we estimate road distance to the two nearest springs and
+take the average.
+
+## Model evaluation
+
+For completeness, we fit three versions of the negative binomial model of ranch
+cluster population: one without the land security variable $P(Secure)$, one with
+it included as an additive term, and one with it included as an interaction
+term. After fitting these models, we perform an ANOVA Likelihood Ratio Test for
+significant improvement in fit when adding each version of the land security
+variable. We then test for spatial autocorrelation in the untransformed
+residuals of all models, including the binomial model, using Monte Carlo
+simulations of Moran's I. We also test for multicollinearity in our variables by
+calculating their respective variance inflation factors.
+
+All analyses are conducted in the R programming language and environment
+[@rcoreteam2023]. For more details on these models and the travel time analysis,
+please see the supplementary materials.
+
+# Results
+
+We initiated this research to understand how local ecology and market
+integration influenced settlement dynamics. Our first model examines how these
+two factors influence whether or not a ranch cluster is occupied or abandoned.
+The model suggests that a cluster's status (whether it is occupied or abandoned)
+negatively co-varies with travel time to spring ($\beta$ = -4.803, *p* = 0.009)
+and positively co-varies with travel time to La Paz ($\beta$ = 2.797, *p* \<
+0.001), indicating that ranch clusters are more likely to be occupied closer to
+springs and further from town (@tbl-coefficients, @fig-response-plots). Our
+second model examines how local ecology and market integration influence the
+distribution of the population across occupied ranch clusters today. The model
+shows that population size across occupied ranch clusters negatively co-varies
+with travel time to cities ($\beta$ = -0.802, *p* \< 0.001), for both
+Constitucion and La Paz, but does not significantly co-vary with travel time to
+springs ($\beta$ = 0.699, *p* = 0.299) (@tbl-coefficients, @fig-response-plots).
+The model with an additive land security term suggests that more secure ranch
+clusters have slightly smaller populations, but the effect is non-significant
+($\beta$ = -0.114, *p* = 0.687). The ANOVA also indicates that an additive land
+security term does not significantly improve the model ($\chi$(1) = 3.003, *p* =
+0.684). The same is true for an interactive term ($\chi$(1) = 3.130, *p* =
+0.663).
+
+The null hypothesis of no spatial autocorrelation in the untransformed residuals
+cannot be rejected for either the occupation status (*I* = -0.023, *p* = 0.820)
+or population size (*I* = -0.082, *p* = 0.460) model, thus indicating a lack of
+spatial correlation. Measures of variance inflation are minimal in each case,
+approximately one for all terms, strongly suggesting no multicollinearity in the
+independent variables.
+
+For a complete list of summary statistics for each model, see @tbl-models.
+
+# Discussion
+
+With this analysis, we seek to understand how rural ranchers in BCS respond to
+important trade-offs between their local ecology and market integration. Our
+results indicate that the locations of modern ranch clusters are largely
+constrained by access to surficial water sources, our proxy for habitat
+suitability in this arid environment, rather than access to the capital La Paz.
+This observation is supported by the fact that occupied ranch clusters are more
+likely to be found farther from the capital, rather than closer to it. However,
+within those constraints, the rancheros are now living at larger densities in
+locations with easier access to Ciudad Constitucion and La Paz, our proxies for
+market integration. In other words, water availability determines *where* people
+live but not *how many* people live there. Instead, that is being driven largely
+by markets, which pull people closer to the cities.
+
+## Proxies for market integration
+
+One important advantage of this research concerns the use of travel time as a
+measure of both market integration and local adaptation. Using this simple
+metric has a number of advantages. First, it provides a straightforward way of
+evaluating the relative contribution of each variable to the outcome of
+interest, in this case, settlement decisions among rural ranchers. Second, it
+conforms with geographic theory regarding spatial interactions and dependence
+(otherwise known as Tobler's Law, @tobler1970) and overcomes known limitations
+of Euclidean distance as a cost measure. Finally, it is a relatively simple
+matter to derive those cost estimates from easily accessible remote-sensed
+elevation and road network data held in online repositories. High resolution
+informant data, on the other hand, are generally difficult and costly to
+acquire, often with little chance of providing the right sort of overlap between
+different variables required for fair comparisons.
+
+It is true, as @mattison2022 point out, that market integration is a
+multi-dimensional process, making it at first blush an awkward concept to try
+and capture in a single variable like travel time or caloric-intake
+[@henrich2010]. Still, Tobler's Law would seem to suggest that all the variables
+strongly associated with market integration will also co-vary with proximity to
+cities and their markets. In other words, the costs and benefits of market
+integration will positively co-vary with access to markets - both will increase
+as one gains greater access to and interacts more often with markets. So, the
+closer individuals are, the more likely they should be to derive their caloric
+requirements from cities, to work in cities, to own televisions, cellphones, and
+other goods sold in cities, but also the more likely they should be to face
+intense competition for jobs, higher rents, and other costs associated with
+living in that proximity.
+
+The ranchers in our study population also recognize that those who live closer
+to the trans-peninsular highway have greater access to markets and are more
+likely to interact with them. They have said as much during our conversations
+with them. As mentioned above, travel time is also a fundamental variable in
+urban and economic geography [@krugman1991; @fujita2001] and thus finds support
+from that direction, too. So, when we look at where individuals actually choose
+to live (how near or how far from cities and markets they choose to reside), it
+is safe to assume we are also getting an answer to the question of how they
+weigh the costs and benefits of cities against those afforded by a rural way of
+life.
+
+## Historical antecedents
+
+What explains our results? There are many dimensions to this question, but key
+to any general understanding of such processes is the idea that people will
+choose to live where they can make the best living for themselves given the
+socioeconomic and environmental constraints that confront them. Those
+constraints will, in turn, differ depending on how one chooses to go about
+making a living [@vernon2022]. For the people of the Sierra de la Giganta, that
+means living where you can expect to do ranching and basic crop production
+reasonably well, that is, where one has access to permanent water sources, as
+well as flat lands that sit above dry riverbeds (so they are not impacted by
+flooding caused by seasonal tropical storms and hurricanes). Due to the lack of
+meaningful water infrastructure in this region, households depend on these
+springs to support both domestic (e.g. bathing and drinking) and economic needs
+(e.g. supporting livestock and crop production). Our statistical results are
+consistent with this idea and with our ethnographic interviews with ranchers who
+indicate that access to a spring is the single most important factor for
+establishing and maintaining a home [@lerback2022].
+
+Our first statistical model indicates that abandoned ranches were located
+farther from springs. Although this appears to run counter to our previous claim
+about the importance of springs to all settlement in the region, we believe this
+is an artifact of our analytic framework, which required us to collapse the
+temporal dimension of this largely historical process. Historical and
+ethnographic evidence suggest that as the first Euro-American colonists entered
+this region in the 18th century, they occupied the largest springs in close
+proximity to arable land [@crosby1994; @macfarlan_etal2020;
+@macfarlan_etal2021]. As the population expanded over time, individuals would
+move up or down drainages, to the next closest spring that could support
+subsistence needs. After time, ranchers likely saturated the landscape by
+occupying all areas with permanent freshwater [sensu @crosby1981] as well as
+less desirable locations which were supported not by springs, but by ephemeral
+freshwater sources such as tinajas and seasonally filled lake basins, which can
+hold water for months or years if they receive sufficient precipitation via the
+North American Monsoon.
+
+However, after the construction of the Transpeninsular Highway and associated
+graded dirt roads in the 1970s and 1980s, the payoffs structuring settlement
+decisions were likely altered, as novel constraints and opportunities emerged
+[@barkenbus1974; @mathes2015]. For a smallholder population undergoing market
+transition, the ideal household location has become both next to a spring and
+close to a road. These roads allowed ranchers to access urban goods and services
+more easily and created an incentive for households occupying springs and
+ephemeral freshwater sources far from the road to move closer to it
+[@macfarlan_etal2023a]. This process resulted in a depopulation event between
+the two major drainages. As this process has unfolded over the last 30-40 years,
+springs near roads with the closest access to urban markets have experienced
+increasing intensification as suitable habitats for establishing new households
+have been exhausted, resulting in the highest population densities.
+
+## Land Security
+
+Our measure of land security proved to be non-significant in our model. Rather
+than being an outcome from which to draw conclusions, we believe this result
+should be interpreted with caution. Our measure of land security is based on a
+combination of government data and informant observations and so likely does not
+capture the full complexity of this important issue. A larger dataset with a
+more standardized and quantifiable measure of land security would be more
+representative. We also note that the issue of land security is not equally
+salient to everyone in this population. Many of the informants that might be
+land insecure by most objective measures do not necessarily act as if their
+title to land is uncertain. This would suggest that perceptions of risk with
+respect to property rights should be studied more thoroughly.
+
+## Socio-ecological consequences
+
+The findings presented here have important consequences for traditional ranching
+communities living in similar circumstances, for how they maintain their way of
+life while meeting the challenges posed by climate change, land fragmentation,
+and other exogenous forces. For instance, researchers have shown that market
+integration within traditional agricultural communities involves a shift from
+intensive to extensive kinship systems, or shifts from small kin networks with
+higher degrees of relatedness to large kin networks with lower degrees of
+relatedness [@peña2002]. This appears to be the result of a decreasing reliance
+on consanguineous or close-kin marriage customs, with families favoring
+expansive social networks within a market economy over stronger family ties
+within a largely agrarian economy [@shenk2016]. Currently, the ranching
+communities of BCS are characterized by more intensive kin networks, but the
+limited available evidence suggests that this might be changing, with
+individuals increasingly marrying outside of the ranching community, most likely
+to individuals living within the cities. Families are as a consequence
+increasing their connections to the cities and by extension increasing the
+incentives for integrating more closely with their markets.
+
+These settlement dynamics have also had variable ecosystem outcomes. Springs
+that exist closer to the road, which are more heavily utilized, typically
+experience substantial negative outcomes relative to springs that exist in the
+depopulated zone, including biodiversity loss, higher rates of introduced exotic
+species, soil degradation, and noise and chemical pollution
+[@leondelaluz_dominguezcadena2006]. This is unfortunate, as the springs and the
+emergent terrestrial ecosystems they support are considered Ramsar sites
+(wetlands of international importance), as well as national terrestrial and
+hydrological priority regions [@arriagacabrera2002; @ramsar2022]. However, it is
+inaccurate to assume, as many conservation biologists, NGOs, and urban elites
+seem to do, that ranchers and their lifestyles have uniformly negative impacts
+on regional ecosystem health [@riemann2005]. For it appears that small, riparian
+ecosystems surrounding springs in the depopulated hinterland away from roads are
+currently on the rebound, with higher rates of endemism, and this in spite of
+the fact that ranching continues in the region. Similar outcomes have also been
+noted elsewhere [@vaccaro2021]. So, concentration of the population within this
+region might actually be beneficial, at least from the perspective of
+biodiversity and ecosystem health, a pattern that appears to be recurring across
+the globe as populations become more urbanized [@daskalova2023]. For that
+matter, current research suggests that the complete abandonment of a region can
+have negative consequences for biodiversity given the co-evolutionary histories
+of small-scale subsistence economies and their local ecosystems [@fischer2012].
+
+Current demographic trends across the region may also exacerbate these local
+processes [@vasco2017]. Since the signing of NAFTA, the total population of the
+southern peninsula has more than doubled, from 375 thousand in 1995 to nearly
+800 thousand in 2020. As one might expect, these increases have occurred almost
+exclusively within the peninsula's urban corridors [@inegi2023a; @inegi2023] .
+This entails increased demand for goods and services and by necessity, increased
+demand for the labor that can provide them, thereby increasing the incentives
+for locating in closer proximity to cities and abandoning more remote locations.
+As alluded to above, the ecological consequences will be complex and
+multifaceted. Given the complexities of population decline and its consequences
+for biodiversity, it is hard to say whether these demographic trends will have a
+net positive or negative effect on long term ecosystem health. We hope our
+analyses here catalyze future research on the effects of ranch abandonment on
+ecosystem outcomes.
+
+## Climate change and drought
+
+Of particular urgency for the rural ranchers of the Sierra de la Giganta is
+ongoing climate-induced drought [@cavazos2012; @colorado-ruiz2018]. For the
+reasons we have emphasized throughout, a lack of access to government services
+and infrastructure makes them uniquely sensitive to these local impacts
+[@hansen2019]. That is almost certainly why access to water plays a larger role
+in constraining the location of occupied ranch clusters. It may also explain the
+decisions ranchers make about the size and composition of their herds, as intra-
+and inter-annual variation in precipitation - in the absence of water
+infrastructure - is the primary factor driving the abundance and distribution of
+most animal fodder in the region [@pettorelli2013; @macfarlan_etal2023a].
+Previous research has shown that pastoralists respond to and oftentimes prepare
+for drought conditions by reducing their herd size, selling off stock in the
+nearby cities, or switching to more drought tolerant alternatives like small
+ruminants [@mace1989; @mace1990; @mace1993]. While these animals are more
+efficient in terms of their total land area, feed, and water requirements, there
+is less demand for them in city markets. This implies that ranchers in the
+region, while trying to address the ongoing threat of droughts, will lose
+important sources of capital they would need to access other resources provided
+by modern markets that they depend on.
+
+## Conclusion
+
+Trade-offs between local ecology and market integration will continue to shape
+the development of rural, smallholder communities, especially as globalization
+and urbanization accelerate. This is as true of the rural ranchers of the Sierra
+de la Giganta as it is for ranchers, pastoralists, and small-scale
+agriculturalists in other parts of the world. For ranchers living in the remote
+corners of BCS, the data coupled with informant reporting together suggest that
+these ranchers feel the pull of markets, being compelled to infill around
+ranches nearer to roads that give them greater access to those markets. The
+consequences of this spatial sorting of the population are complicated as well.
+While integration can help to mitigate local risks, it also raises new ones,
+with population packing increasing pressure on nearby water resources that are
+crucial to the sustainability of these communities. At the same time, the
+concentration of the population appears to offer positive results for the
+ecology of abandoned areas, among other things increasing their biodiversity.
+
+The research presented in this paper raises a number of important issues that
+deserve greater attention, including a more robust analysis of land
+fragmentation and land insecurity, using a larger dataset more representative of
+these ranching communities across the peninsula. It is also important that we
+better understand the manner and extent to which proximity or travel time to
+markets correlates with other proxies for market integration. Answering that
+question would go along way towards helping researchers overcome many of the
+methodological challenges associated with richly ethnographic studies of remote,
+smallholder economies and in the process offer new avenues for investigating the
+ongoing integration of those systems with modern markets.
+
+{{< pagebreak >}}
+
+# Funding and/or Competing interests
+
+The research was funded in part by the Center for Latin American Studies,
+University of Utah.
+
+The authors have no relevant financial or non-financial interests to disclose.
+
+{{< pagebreak >}}
+
+# References
+
+::: {#refs}
+:::
+
+{{< pagebreak >}}
 
 ```{r}
 #| label: fig-overview-map
@@ -87,136 +674,142 @@ As a baseline for investigating the demographic consequences of these competing 
 #| fig-cap: "**Overview map.** The top right panel shows the location of the study area (in red) in relation to the two nearest city centers, La Paz and Ciudad Constitucion. Panel A shows the distribution of ranch clusters in each watershed, as well as their population size (size and color). Note that a population of zero means the ranch cluster is abandoned. Panel B shows the distribution of land secure and land insecure ranch houses (shape and color) for all occupied ranch houses. Solid white lines represent Federal Highway 1 (in the top right panel), major roads connecting it to the project area, and other roads and paths in the project area."
 
 here("figures", "overview-map.png") |> include_graphics()
-```
-
-Importantly, we investigate the degree to which modern land fragmentation, specifically the security of land title, serves as an effective constraint on these dynamics. This is important because pastoralists have historically lacked clear title to land, instead relying on open rangeland systems [@behnke1994; @turner1999]. In Mexico, these systems take the form of *ejidos*, or areas of communal agricultural land. The first *ejidos* were established by the Mexican state in the early part of the twentieth century [@perramond2008], though in our project area they did not arrive until 1975 [@dof1975] and 1976 [@dof1976], respectively. While these *ejidos* have historically served as a buffer against land fragmentation, allowing rancheros to maintain their way of life, their ability to play that role continues to change as the pace of privatization and shifting land tenure accelerates [@lesorogol2003; @reid2008]. As has happened in other contexts, privatization efforts are often led by NGOs, commercial interests, and other external forces, with the result being greater fragmentation of pastoral rangeland systems [@burnsilver2008; @galvin2009]. For the rural ranchers of the Sierra de la Giganta, this process of fragmentation at least partially explains why ranches of related individuals tend to cluster. Rancheros, unable to find new land for themselves, simply build ranches next to their kin on land that is at least historically associated with their family.
-
-Our analysis relies on two generalized linear models (GLMs). We use a binomial GLM to evaluate whether market integration or local ecology has played a larger role in determining the current status of ranch clusters, if they are occupied or abandoned. We then use a negative binomial GLM to identify which variable contributes more to the distribution of these ranching populations across currently occupied clusters, with a binary term representing land security. These are applied to ranch clusters in two east-west running watersheds along the southern extent of the Sierra de la Giganta range.
-
-The key measure in all these models is cost-distance or travel time. This has been used as a proxy for market integration in other studies focusing on largely subsistence-based economies [see especially @gurven2017], with models exploring its relationship to, among other things, social status [@schultz2019], hunting effort and efficiency [@luz2015], and oral tradition [@schniter2018]. An important advantage of our analysis, however, is that we use cost-distance as a proxy for both market integration and local ecology (or ecosystem services). Specifically, we use cost-distance to major cities as a proxy for market integration and cost-distance to local surficial springs as a proxy for ecosystem services. This allows for more straightforward comparisons of their relative contributions to settlement outcomes, which can then be readily interpreted as strategies for navigating trade-offs between those two variables.
-
-We would also like to emphasize an important historical dimension to this research, namely, that the process leading to the current distribution of occupied and abandoned ranch clusters played out before Ciudad Constitucion (the large urban area to the north of our study area) offered significant market benefits. This is reflected in how we specify each model. The model of occupied and abandoned ranch clusters includes only proximity to La Paz as a measure of market integration, which historically was the only market that ranchers accessed prior to the construction of Federal Highway 1. The model of population distributions across occupied ranches, however, includes cost-distance to La Paz and Ciudad Constitucion, as both have offered markets regularly used by ranchers in our study population today. All models are evaluated for goodness of fit, multicollinearity, and residual autocorrelation.
-
-# Results
-
-We initiated this research to understand how local ecology and market integration influenced settlement dynamics. Our first model examines how these two factors influence whether or not a ranch cluster is occupied or abandoned. The model suggests that a cluster's status (whether it is occupied or abandoned) negatively co-varies with cost-distance to spring ($\beta$ = -4.803, *p* = 0.009) and positively co-varies with cost-distance to La Paz ($\beta$ = 2.797, *p* \< 0.001), indicating that ranch clusters are more likely to be occupied closer to springs and further from town (@tbl-models, @fig-response-plots). Our second model examines how local ecology and market integration influence the distribution of the population across occupied ranch clusters today. The model shows that population size across occupied ranch clusters negatively co-varies with cost-distance to cities ($\beta$ = -0.802, *p* \< 0.001), for both Constitucion and La Paz, but does not significantly co-vary with cost-distance to springs ($\beta$ = 0.699, *p* = 0.299) (@tbl-models, @fig-response-plots). The model with an additive land security term suggests that more secure ranch clusters have slightly smaller populations, but the effect is non-significant ($\beta$ = -0.114, *p* = 0.687). The ANOVA also indicates that an additive land security term does not significantly improve the model ($\chi$(1) = 3.003, *p* = 0.684). The same is true for an interactive term.
-
-The null hypothesis of no spatial autocorrelation in the untransformed residuals cannot be rejected for either the occupation status (*I* = -0.023, *p* = 0.820) or population size (*I* = -0.082, *p* = 0.460) model, thus indicating a lack of spatial correlation. Measures of variance inflation are minimal in each case, approximately one for all terms, strongly suggesting no multicollinearity in the independent variables.
-
-```{r}
-#| label: tbl-models
-
-here("data", "model-statistics.rdata") |> load()
-
-coefficient_estimates |>
-  filter(model %in% c("Occupied-Abandoned", "Population")) |>
-  group_by(model) |> 
-  gt() |> 
-  tab_options(
-    column_labels.font.weight = "bold",
-    data_row.padding = px(6),
-    heading.align = "left",
-    heading.border.bottom.style = "hidden",
-    row_group.as_column = TRUE,
-    row.striping.background_color = "gray96",
-    row.striping.include_stub = FALSE,
-    row.striping.include_table_body = TRUE,
-    table.border.top.style = "hidden",
-    table.border.bottom.style = "hidden"
-  ) |> 
-  sub_missing(missing_text = "") |> 
-  tab_stubhead("model") |> 
-  tab_header(title = "Coefficient Estimates") |> 
-  tab_caption("") |> 
-  as_latex()
 
 ```
 
-# Discussion
-
-With this analysis, we seek to understand how rural ranchers in Baja California Sur respond to important trade-offs between their local ecology and market integration. Our results indicate that the locations of modern ranch clusters are largely constrained by access to surficial water sources, our proxy for habitat suitability in this arid environment, rather than access to the capital La Paz. This observation is supported by the fact that occupied ranch clusters are more likely to be found farther from the capital, rather than closer to it. However, within those constraints, the rancheros are now living at larger densities in locations with easier access to Ciudad Constitucion and La Paz, our proxies for market integration. In other words, water availability determines *where* people live but not *how many* people live there. Instead, that is being driven largely by markets, which pull people closer to the cities.
-
-```{r}
-#| label: fig-response-plots
-#| fig-align: center
-#| out-width: 5in
-#| fig-cap: "**Response plots.** Marginal response plots showing change in the dependent variables (occupied vs abandoned ranch clusters and population size) as a function of change in one independent variable while holding the other at its mean."
-
-here("figures", "response-plots.png") |> include_graphics()
-```
-
-## Proxies for market integration
-
-One important advantage of this research concerns the use of travel costs as a measure of both market integration and local adaptation. Using this simple metric provides a straightforward way of evaluating the relative contribution of each variable to the outcome of interest, in this case, settlement decisions among rural ranchers. It also conforms with geographic theory regarding spatial interactions and dependence (otherwise known as Tobler's Law) and overcomes known limitations of Euclidean distance as a cost measure. And, it is a simple matter to derive those cost estimates from easily accessible remote-sensed elevation and road network data held in online repositories. High resolution informant data, on the other hand, are generally difficult and costly to acquire, often with little chance of providing the right sort of overlap between different variables required for fair comparisons.
-
-It is true, as @mattison2022 point out, that market integration is a multi-dimensional process, making it at first blush an awkward concept to try and capture in a single variable like cost-distance or caloric-intake [@henrich2010]. Still, Tobler's Law would seem to suggest that all the variables strongly associated with market integration will also co-vary with proximity to cities and their markets. In other words, the costs and benefits of market integration will positively co-vary with access to markets - both will increase as one gains greater access to and interacts more often with markets. So, the closer individuals are, the more likely they should be to derive their caloric requirements from cities, to work in cities, to own televisions, cellphones, and other goods sold in cities, but also the more likely they should be to face intense competition for jobs, higher rents, and other costs associated with living in that proximity.
-
-The ranchers in our study population also recognize that those who live closer to the trans-peninsular highway have greater access to markets and are more likely to interact with them. They have said as much during our conversations with them. It is perhaps worth noting in this context that cost distance (specifically transport cost) is also a fundamental variable in the new economic geography, where models seek to explain urbanization or the spatial concentration of economic activity [@krugman1991; @fujita2001] and thus finds support from that direction, too. So, when we look at where individuals actually choose to live (how near or how far from cities and markets they choose to reside), it is safe to assume we are also getting an answer to the question of how they weigh the costs and benefits of cities against those afforded by a rural way of life.
-
-## Historical antecedents
-
-What explains our results? There are many dimensions to this question, but key to any general understanding of such processes is the idea that people will choose to live where they can make the best living for themselves given the socioeconomic and environmental constraints that confront them. Those constraints will, in turn, differ depending on how one chooses to go about making a living [@vernon2022]. For the people of the Sierra de la Giganta, that means living where you can expect to do ranching and subsistence crop production reasonably well, that is, where one has access to permanent water sources, as well as flat lands that sit above dry riverbeds (so they are not impacted by flooding caused by seasonal tropical storms and hurricanes). Much like the vast majority of the Baja California peninsula, the Sierra de La Giganta is a hot, arid, mountainous landscape with minimal surficial freshwater stocks [@maya1997]. The only permanent sources of naturally occurring freshwater in this region are arid-land springs [@grismer1993; @macfarlan2020a; @macfarlan2020b; @macfarlan2021]. Due to the lack of infrastructure in this region, households require springs to support both domestic (e.g. bathing and drinking) and economic needs (e.g. supporting livestock and crop production). Our statistical results are consistent with our ethnographic interviews with ranchers which indicate that access to a spring is the single most important factor for establishing and maintaining a home [@lerback2022].
-
-Our first statistical model indicates that abandoned ranches were located farther from springs. Although this appears to run counter to our previous claim about the importance of springs to all settlement in the region, we believe this is an artifact of our analytic framework, which required us to collapse the temporal dimension of this largely historical process. Historical and ethnographic evidence suggest that as the first Euro-American colonists entered this region in the 18th century, they occupied the largest springs in close proximity to arable land [@crosby1994]. As the population expanded over time, individuals would move up or down drainages, to the next closest spring that could support subsistence needs. After time, ranchers likely saturated the landscape by occupying all areas with permanent freshwater [sensu @crosby1981] as well as less desirable locations which were supported not by springs, but by ephemeral freshwater sources such as tinajas and seasonally filled lake basins, which can hold water for months or years if they receive sufficient precipitation via the North American Monsoon.
-
-However, after the construction of the Transpeninsular Highway and associated graded dirt roads in the 1970s and 1980s, the payoffs structuring settlement decisions were likely altered, as novel constraints and opportunities emerged. For a subsistence population undergoing market transition, the ideal household location has become both next to a spring and close to a road. These roads allowed ranchers to access urban goods and services more easily and created an incentive for households occupying springs and ephemeral freshwater sources far from the road to move closer to it. This process resulted in a depopulation event between the two major drainages. As this process has unfolded over the last 30-40 years, springs near roads with the closest access to urban markets have experienced increasing intensification as suitable habitats for establishing new households have been exhausted, resulting in the highest population densities.
-
-## Socio-ecological consequences
-
-The findings presented here have important consequences for traditional ranching communities living in similar circumstances, for how they maintain their way of life while meeting the challenges posed by climate change, land fragmentation, and other exogenous forces. For instance, researchers have shown that market integration within traditional agricultural communities involves a shift from intensive to extensive kinship systems, or shifts from small kin networks with higher degrees of relatedness to large kin networks with lower degrees of relatedness [@peña2002]. This appears to be the result of a decreasing reliance on consanguineous or close-kin marriage customs, with families favoring expansive social networks over stronger family ties within a market economy [@shenk2016]. Currently, the ranching communities of Baja California Sur are characterized by more intensive kin networks, but the limited available evidence suggests that this might be changing, with individuals increasingly marrying outside of the ranching community, most likely to individuals living within the cities. Families are as a consequence increasing their connections to the cities and by extension increasing the incentives for integrating more closely with their markets.
-
-These settlement dynamics have also had variable ecosystem outcomes. Springs that exist closer to the road, which are more heavily utilized, typically experience substantial negative outcomes relative to springs that exist in the depopulated zone, including biodiversity loss, higher rates of introduced exotic species, soil degradation, and noise and chemical pollution [@leóndelaluz2006]. This is unfortunate, as the springs and the emergent terrestrial ecosystems they support are considered Ramsar sites (wetlands of international importance), as well as national terrestrial and hydrological priority regions [@arriagacabrera2002; @ramsar2022]. However, it is inaccurate to assume, as many conservation biologists, NGOs, and urban elites seem to do, that ranchers and their lifestyles have uniformly negative impacts on regional ecosystem health [@riemann2005]. For it appears that small, riparian ecosystems surrounding springs in the depopulated hinterland away from roads are currently on the rebound, with higher rates of endemism, and this in spite of the fact that ranching continues in the region. Similar outcomes have also been noted elsewhere [@vaccaro2021]. So, concentration of the population within this region might actually be beneficial, at least from the perspective of biodiversity and ecosystem health, a pattern that appears to be recurring across the globe as populations become more urbanized [@daskalova2023]. For that matter, current research suggests that the complete abandonment of a region can have negative consequences for biodiversity given the co-evolutionary histories of small-scale subsistence economies and their local ecosystems [@fischer2012].
-
-Current demographic trends across the region may also exacerbate these local processes [@vasco2017]. Since the signing of NAFTA, the total population of the southern peninsula has more than doubled, from 375 thousand in 1995 to nearly 800 thousand in 2020. As one might expect, these increases have occurred almost exclusively within the peninsula's urban corridors [@inegi2023a; @inegi2023] . This entails increased demand for goods and services and by necessity, increased demand for the labor that can provide them, thereby increasing the incentives for locating in closer proximity to cities and abandoning more remote locations.
-
-## Climate change and drought
-
-Of particular urgency for the rural ranchers of the Sierra de la Giganta is ongoing climate-induced drought [@cavazos2012; @colorado-ruiz2018]. For the reasons we have emphasized throughout, a lack of access to government services and infrastructure makes them uniquely sensitive to these local impacts [@hansen2019]. That is almost certainly why access to water plays a larger role in constraining the location of occupied ranch clusters. It may also explain the decisions ranchers make about the size and composition of their herds, as intra- and inter-annual variation in precipitation - in the absence of water infrastructure - is the primary factor driving the abundance and distribution of most animal fodder in the region [@pettorelli2013; @macfarlan2023]. Previous research has shown that pastoralists respond to and oftentimes prepare for drought conditions by reducing their herd size, selling off stock in the nearby cities, or switching to more drought tolerant alternatives like small ruminants [@mace1989; @mace1990; @mace1993]. While these animals are more efficient in terms of their total land area, feed, and water requirements, there is less demand for them in city markets. This implies that ranchers in the region, while trying to address the ongoing threat of droughts, will lose important sources of capital they would need to access other resources provided by modern markets that they depend on.
-
-## Conclusion
-
-Trade-offs between local ecology and market integration will continue to shape the development of rural, largely subsistence-based communities, especially as globalization and urbanization accelerate. This is as true of the rural ranchers of the Sierra de la Gigantes as it is for ranchers, pastoralists, and small-scale agriculturalists in other parts of the world. For ranchers living in the remote corners of Baja California Sur, the data coupled with informant reporting together suggest that these ranchers feel the pull of markets, being compelled to infill around ranches nearer to roads that give them greater access to those markets. The consequences of this spatial sorting of the population are complicated as well. While integration can help to mitigate local risks, it also raises new ones, with population packing increasing pressure on nearby water resources that are crucial to the sustainability of these communities. At the same time, the concentration of the population appears to offer positive results for the ecology of abandoned areas, among other things increasing their biodiversity.
-
-The research presented in this paper raises a number of important issues that deserve greater attention, particularly the manner and extent to which proximity or cost-distance to markets correlates with other proxies for integration. Answering that question would go along way towards helping researchers overcome many of the methodological challenges associated with richly ethnographic studies of remote and largely subsistence-based economies and in the process offer new avenues for investigating the ongoing integration of those systems with modern markets.
-
-# Methods
-
-To evaluate the determinants of ranch occupation and population size, we rely on two generalized linear models (GLMs). We use a binomial GLM to evaluate whether market integration or local ecology has played a larger role in structuring the distribution of occupied and abandoned ranch clusters. We then use a negative binomial GLM to identify which variable contributes more to the distribution of rancher populations across currently occupied clusters, with an additional variable representing land security, or the proportion of ranch houses within a cluster having clear title to their property, as this may mediate ranch population size. The use of a negative binomial rather than the standard Poisson model for count data is preferred here to account for dispersion, or circumstances in which the variance deviates from the mean, which violates a key assumption of the Poisson distribution. These models are applied to ranch clusters in two largely east-west running watersheds along the southern extent of the Sierra de la Giganta range.
-
-## Data
-
-The dependent variables, occupation status and population, we obtain from Mexico's online Catálogo do Localidades [@secretaríadedesarrollosocial2021], coupled with fieldwork conducted over several years beginning in 2014. In total, the sample includes 72 ranch clusters, with 39 being unoccupied or abandoned and the remaining 33 being occupied by 290 individuals.
-
-The independent variables, market integration and habitat suitability, we operationalize using three estimates of cost-distance: (i) one to La Paz, (ii) one to Ciudad Constitucion or La Paz (depending on the watershed), and (iii) one to local springs, with each involving a mix of pedestrian and automotive travel. The first two variables are our proxies for market integration, under the assumption that increased interaction with markets will positively covary with proximity to the cities. The third variable, cost-distance to springs, is our proxy for habitat suitability, as water is a critical resource in this arid environment. In the binomial GLM, which examines the distribution of abandoned versus active ranching clusters, we use only cost-distance to La Paz (i) as Ciudad Constitucion did not offer a significant market when those locations were being established. We then use cost-distance to both Ciudad Constitucion and La Paz (ii) in the negative binomial GLM examining ranch-cluster population sizes. Cost-distance to springs (iii) is used in both models, on the assumption that the location of active streams would not have changed during the period of time in question [@grismer1993].
-
-Land fragmentation is here operationalized as land security, defined as the proportion of ranch houses within a cluster with clear title to land or who are registered members of an ejido. Information on this is provided by Mexico's National Institute of Statistics and Geography [@registroagrarionacional2019] and by ethnographic observation. Of the occupied ranch clusters, only 8 are fully secure, meaning all ranch houses within the cluster have full title to their property. Of the remaining 25, less than half of their ranch houses are secure.
-
-## Travel time
-
-To estimate travel time, we first derive a gridded cost surface from a 30-meter resolution digital elevation model derived from the National Elevation Dataset provided by the United States Geological Survey. This is achieved by applying Campbell's hiking function [@campbell2019] to slope estimates extracted from the elevation model. The result is a cost surface where the value of each 30-meter grid cell represents the time in seconds it would take to traverse that cell.
-
-Three important assumptions underlie the cost-surface model. First, we assume that the average walking speed of a rancher is approximately equal to the third decile of US hikers (about 2.5 meters per second over flat ground), which increases or decreases based on slope. Second, we assume that no individual will traverse a slope greater than 35 degrees. Obviously, there will be exceptions to this, but ethnographic observation does suggest that it is true in general for the rancheros in this region. Plus, our distance measure is used for relative comparisons, making the precise absolute value of limited concern. Finally, we assume that travel on roads and built paths will be less costly than through grid cells where vegetation and other landform characteristics provide obstacles to travel. In the cost surface, this is achieved by first classifying paths as primary (for maintained roads), secondary (for non-maintained roads), and tertiary (for walking paths), and then weighting the travel cost associated with each by 0.2, 0.5, and 0.8, respectively. This is equivalent to increasing the speed of travel to 12.5, 5, and 3.125 m/s, making the speeds more comparable to driving a car or riding a horse along the primary and secondary paths, which is what the ranchers here do when going to the city or visiting their springs or neighbors. All road paths were digitized manually using Google Earth and validated through field observation.
+{{< pagebreak >}}
 
 ```{r}
 #| label: fig-shortest-paths 
 #| fig-align: center 
-#| out-width: 5.75in 
+#| out-width: 5.5in 
 #| fig-cap: "**Shortest paths.** Maps showing least-cost paths to springs and cities."  
 
 here("figures", "least-cost-paths.png") |> include_graphics()
+
 ```
-
-Once we have this cost surface, we then use Djikstra's algorithm to identify least-cost paths from ranch clusters to springs and cities and, thus, the total time it takes to travel from each origin to each destination. These are shown in @fig-shortest-paths. We note, however, that strictly speaking, we do not measure travel time to the cities, just to the edge of the study region in the direction of Federal Highway 1, for both the northern and southern watersheds. Each one has a single road that connects it to Highway 1 and thus to the markets in Ciudad Constitucion to the north and the capital La Paz to the south. The "road" that connects the watersheds to each other is not maintained and thus rarely used. As a consequence, nearly all of the variance in travel time to cities is found within each watershed. For that reason, we estimate the time it takes to leave each watershed ("leaving" here means hitting the edge of the project area), rather than the true time it takes to get to each city. We interpret this as the relative difference in time it takes to get to Ciudad Constitucion from the northern watershed and the relative difference in time it takes to get to La Paz from the southern watershed. To get to La Paz from the northern watershed, we simply add an arbitrary half hour to the total time to get out of that watershed. The same would presumably be the case to get to Ciudad Constitucion from the southern watershed, though that value does not factor into our analysis. For springs, our ethnographic data reveal that individuals residing within the same ranch cluster tend to rely on one or two springs at most [@lerback2022]. Thus, we estimate road distance to the two nearest springs and take the average.
-
-## Model evaluation
-
-For completeness, we fit three versions of the negative binomial model of ranch cluster population: one without the land security variable, one with it included as an additive term, and one with it included as an interaction term. After fitting these models, we perform an ANOVA Likelihood Ratio Test for significant improvement in fit. We then test for spatial autocorrelation in the untransformed residuals of all models, including the binomial model, using Monte Carlo simulations of Moran's I. We also test for multicollinearity in our cost-distance variables by calculating their respective variance inflation factors.
-
-All analyses are conducted in the R programming language and environment [@rcoreteam2022]. For more details on these models and the cost-distance analysis, please see the supplementary materials.
 
 {{< pagebreak >}}
 
-# References
+```{r}
+#| label: fig-response-plots
+#| fig-align: center
+#| out-width: 5.5in
+#| fig-cap: "**Response plots.** Marginal response plots showing change in the dependent variables (occupied vs abandoned ranch clusters and population size) as a function of change in one independent variable while holding the other at its mean."
 
-::: {#refs}
-:::
+here("figures", "response-plots.png") |> include_graphics()
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: fig-context-photos
+#| fig-align: center
+#| out-width: 5.5in
+#| fig-cap: "**Context photographs.** (A) Spring San Francisco, an oasis around a lentic pool in a shallow arroyo. (B) Abandoned ranch near Spring San Francisco. (C) Aerial overview of Arroyo La Presa and a cluster of ranches in the western part of the study. The area is criss-crossed by graded and two-track dirt roads, with a lentic pool in the foreground and huertas or small gardens in the background."
+
+here("figures", "context-photos.png") |> include_graphics()
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+
+table_defaults <- function(x){
+  
+  x |> 
+    tab_options(
+      column_labels.font.weight = "bold",
+      data_row.padding = px(5),
+      heading.align = "left",
+      heading.border.bottom.style = "hidden",
+      row_group.as_column = TRUE,
+      table.border.top.style = "hidden",
+      table.border.bottom.style = "hidden"
+    ) |> 
+    sub_missing(missing_text = "")
+  
+}
+
+```
+
+```{r}
+#| label: tbl-variables
+#| fig-align: center
+#| out-width: "100%"
+
+fn <- here("_misc", "tbl-variables.png")
+
+here("data", "variable-summary.csv") |> 
+  read_csv() |> 
+  mutate(
+    description = case_when(
+      variable == "paz"        ~ "Time to leave community on way to La Paz (hours)",
+      variable == "cities"     ~ "Time to leave community on way to La Paz from south 
+                                  or Ciudad Constitucion from north (hours)",
+      variable == "springs"    ~ "Mean time to two nearest springs (hours)",
+      variable == "secure"     ~ "Proportion of cluster with clear title or *ejido* 
+                                  membership (0 to 1)",
+      variable == "occupied"   ~ "Cluster has at least one resident (1) or no 
+                                  residents (0)",
+      variable == "population" ~ "Number of individuals residing at ranch cluster"
+    )
+  ) |> 
+  select(model, variable, description, everything()) |> 
+  group_by(model) |> 
+  gt() |> 
+  table_defaults() |>  
+  tab_stubhead("model") |>
+  tab_header(title = "Variable Summary") |> 
+  fmt_number(decimals = 2) |> 
+  fmt_markdown(description) |> 
+  cols_align("left", description) |> 
+  gtsave(filename = fn)
+
+fn |> include_graphics()
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-models
+#| fig-align: center
+#| out-width: "80%"
+
+here("data", "model-statistics.rdata") |> load()
+
+fn <- here("_misc", "tbl-models.png")
+
+model_statistics |>
+  gt() |> 
+  table_defaults() |> 
+  tab_header(title = "Summary Statistics") |> 
+  gtsave(filename = fn)
+
+fn |> include_graphics()
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-coefficients
+#| fig-align: center
+#| out-width: "65%"
+
+fn <- here("_misc", "tbl-coefficients.png")
+
+coefficient_estimates |>
+  group_by(model) |> 
+  gt() |> 
+  table_defaults() |> 
+  tab_stubhead("model") |> 
+  tab_header(title = "Coefficient Estimates") |> 
+  gtsave(filename = fn)
+
+fn |> include_graphics()
+
+```
