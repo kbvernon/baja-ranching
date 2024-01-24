@@ -16,7 +16,7 @@ This repository contains the data and code for our paper:
 > and Shane Macfarlan
 > [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-6332-9829)
 > (2023). Market integration mediates human-environment interactions among traditional ranchers in Baja, Mexico.
-> *Nature Sustainability*.
+> *Sustainability Science*.
 
 **Preprint**: [manuscript.pdf](/manuscript/manuscript.pdf)  
 **Supplement**: [models.html](https://kbvernon.github.io/baja-ranching/R/models.html), [least-cost-paths.html](https://kbvernon.github.io/baja-ranching/R/least-cost-paths.html)  
@@ -33,8 +33,11 @@ This repository contains the data and code for our paper:
 &emsp;&emsp;&RightTee; 🌎 [watersheds.geojson](data/watersheds.geojson)  
 📂 [figures](/figures) contains all figures included in the paper  
 📂 [manuscript](/manuscript) contains the pre-print  
+&emsp;&emsp;&RightTee; 📄 [bibliography.bib](/manuscript/bibliography.bib)  
 &emsp;&emsp;&RightTee; 📄 [manuscript.qmd](/manuscript/manuscript.qmd)  
 &emsp;&emsp;&RightTee; 📄 [manuscript.pdf](/manuscript/manuscript.pdf)  
+&emsp;&emsp;&RightTee; 📄 [reviews-response.md](/manuscript/reviews-response.md)  
+&emsp;&emsp;&RightTee; 📄 [reviews.md](/manuscript/reviews.md)  
 📂 [R](/R) code for preparing data and conducting analysis, including  
 &emsp;&emsp;&RightTee; 📄 [models.qmd](/R/models.qmd) is the primary analysis,  
 &emsp;&emsp;&RightTee; 📄 [least-cost-paths.qmd](/R/least-cost-paths.qmd),  
