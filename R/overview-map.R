@@ -29,8 +29,6 @@ theme_update(
   plot.margin = margin()
 )
 
-stroke <- 0.3
-
 # data --------------------------------------------------------------------
 
 gpkg <- here("data", "choyero.gpkg")
@@ -73,12 +71,12 @@ overview <- ggplot() +
   geom_sf(
     data = region, 
     fill = "gray95",
-    size = stroke
+    size = 0.3
   ) +
   geom_sf(
     data = bcs, 
     fill = "#A8A076",
-    size = stroke
+    size = 0.3
   ) +
   geom_sf(
     data = highways |> st_buffer(1750) |> st_union(), 
@@ -97,8 +95,7 @@ overview <- ggplot() +
     aes(X, Y, label = name),
     size = 10/.pt,
     nudge_x = c(-100000, 70000),
-    nudge_y = 80000,
-    hjust = c(1,0)
+    nudge_y = 80000
   ) +
   geom_sf(
     data = cities, 
@@ -106,7 +103,7 @@ overview <- ggplot() +
     fill = "#fffbc9", 
     color = "black",
     size = 3,
-    stroke = stroke
+    stroke = 0.3
   ) +
   annotation_scale(
     aes(location = "bl"),
@@ -131,17 +128,18 @@ base <- ggplot() +
   geom_sf(
     data = region, 
     fill = "#A8A076",
-    size = stroke
+    size = 0.3
   ) +
   geom_sf(
     data = watersheds,
     fill = alpha("gray95", alpha = 0.5), 
     color = "gray50",
-    size = stroke
+    size = 0.3
   ) +
   geom_sf(
     data = roads |> filter(level != "T"),
-    color = "white"
+    color = "white",
+    linewidth = 0.1
   )
 
 # population map ----------------------------------------------------------
@@ -223,7 +221,7 @@ population + overview + land + guide_area() + plot_layout(guides = 'collect')
 
 ggsave(
   here("figures", "overview-map.png"),
-  dpi = 600,
+  dpi = 800,
   width = 5.75,
   height = 5.75
 )

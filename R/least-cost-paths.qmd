@@ -60,7 +60,7 @@ library(dplyr)
 library(ggnewscale)
 library(ggplot2)
 library(here)
-library(hiker)
+library(igraph)
 library(sf)
 library(terra)
 library(viridis)
@@ -150,17 +150,17 @@ dem <- rast(here("data", "dem_30m.tif"))
 ```{r}
 
 # ORIGIN ---
-clusters <- 
-  read_sf(gpkg, layer = "clusters") |>
+clusters <- gpkg |> 
+  read_sf(layer = "clusters") |>
   mutate(variable = "cluster")
 
 # DESTINATION --- to city, terminus at edge of window
-terminus <- 
-  read_sf(gpkg, layer = "terminus") |>
+terminus <- gpkg |> 
+  read_sf(layer = "terminus") |>
   mutate(variable = "terminus")
 
-springs <- 
-  read_sf(gpkg, layer = "springs") |>
+springs <- gpkg |> 
+  read_sf(layer = "springs") |>
   select(id, name) |>
   mutate(variable = "spring")
 
@@ -249,7 +249,7 @@ gg <- ggplot() +
 ggsave(
   plot = gg,
   filename = here("figures", "od-points.png"),
-  dpi = 600,
+  dpi = 800,
   width = 3.5,
   height = 3.5 * (dy/dx)
 )
@@ -274,6 +274,211 @@ To estimate least-cost paths, we first derive slope estimates from the DEM then 
 : Down-weight for travel-cost
 :::
 
+The necessary functions are defined in the folded code chunk below.
+
+```{r}
+#| code-fold: true
+
+#' Cost surface
+#'
+#' Create a `terrain` representing the cost of travel. 
+#'
+#' The `SpatRaster` must have a projected CRS, with both distance units and elevation
+#' values in meters.
+#'
+#' @param x a `SpatRaster` with elevation values.
+#' @param hf a character string specifying the preferred hiking function. Options
+#'   include `tobler` and `campbell` (default).
+#' @param max_slope a numeric value specifying the maximum allowed hiking slope
+#'   _in degrees_ (default is 45). Suppose you ask: Would a person really hike
+#'   _that_? This is the shallowest slope where the answer to that question is No.
+#' @param neighbors numeric, one of 4, 8, or 16 (default) specifying the number of
+#'   adjacent cells between which to calculate movement cost. These are passed on
+#'   to `terra::adjacent()` and represent standard neighborhoods (rook, queen, and
+#'   knight + queen).
+#' @param ... Arguments passed on to the hiking function specified by `hf`.
+#'
+#' @return a `terrain` representing cost of travel.
+hf_terrain <- function(x,
+                       hf = "campbell",
+                       max_slope = 45,
+                       neighbors = 8,
+                       ...) {
+
+  # find adjacent cells in the raster
+  # make sure to ignore all na values
+  n_cells <- terra::ncell(x)
+  
+  na_cells <- which(is.na(terra::values(x)))
+  
+  cells <- setdiff(1:n_cells, na_cells)
+  
+  adj <- terra::adjacent(
+    x,
+    cells = cells,
+    directions = neighbors,
+    pairs = TRUE
+  )
+  
+  adj <- adj[!adj[, 2] %in% na_cells, ]
+  
+  ### slope ###
+  # change in y between adjacent pixels
+  heights <- terra::values(x)[, 1]
+  
+  rise <- (heights[adj[, 2]] - heights[adj[, 1]])
+  
+  # change in x between adjacent pixels
+  run <- terra::distance(
+    terra::xyFromCell(x, adj[, 1]),
+    terra::xyFromCell(x, adj[, 2]),
+    lonlat = FALSE,
+    pairwise = TRUE
+  )
+  
+  slope <- rise/run
+  
+  ### speed ###
+  speed_fun <- switch(
+    hf,
+    "campbell" = campbell,
+    "tobler"   = tobler,
+    stop(paste0("hiker does not implement the ",
+                hf,
+                " hiking function."))
+  )
+  
+  speed <- speed_fun(slope, ...)
+  
+  ### conductance ###
+  conductance <- speed/run
+  
+  # what is a realistic slope people would try to hike?
+  max_slope <- tan(max_slope * pi / 180) # degrees -> radians -> rise-over-run
+  
+  i <- which(abs(slope) >= max_slope)
+  
+  conductance[i] <- 0
+  
+  # build matrix
+  cm <- Matrix::spMatrix(nrow = n_cells, ncol = n_cells)
+  
+  cm[adj] <- conductance
+  
+  # include some spatial and other information to make
+  # manipulating the network faster and easier
+  # when passed to other functions
+  # storing bounding box as vector to keep the size down
+  bb8 <- terra::ext(x)
+  bb8 <- c(bb8$xmin, bb8$xmax, bb8$ymin, bb8$ymax)
+  
+  xcrs <- terra::crs(x, describe = TRUE)
+  xcrs <- paste0(xcrs$authority, ":", xcrs$code)
+  
+  tmin <- 1/max(conductance)
+  tmax <- 1/min(conductance[conductance > 0])
+  
+  terrain <-
+    list(
+      "conductance" = cm,
+      "neighbors"   = neighbors,
+      "nrow"        = terra::nrow(x),
+      "ncol"        = terra::ncol(x),
+      "bb8"         = bb8,
+      "crs"         = xcrs,
+      "range"       = c("min" = tmin, "max" = tmax)
+    )
+  
+  class(terrain) <- "terrain"
+  
+  return(terrain)
+  
+}
+
+campbell <- function(x, decile = 50L) {
+  
+  if (length(decile) != 1) {
+    
+    stop("campbell accepts only one decile at a time.")
+    
+  }
+  
+  # campbell function wants degrees, not rise-over-run as in tobler
+  # but, we're working with rr, so remember to convert radians to degrees with 180/pi!
+  slope <- atan(x) * 180 / pi
+  
+  # values provided in Campbell 2019, Supplement, Table S1
+  # for simplicity, I excluded all but the deciles
+  deciles <-
+    data.frame(
+      decile = c(10L, 20L, 30L, 40L, 50L, 60L, 70L, 80L, 90L),
+      a = c(-1.568, -1.71,  -1.858, -1.958, -2.171, -2.459, -2.823,  -3.371,  -3.06),
+      b = c(13.328, 10.154,  8.412,  8.96,  10.064, 11.311, 12.784,  15.395,  16.653),
+      c = c(38.892, 36.905, 39.994, 50.34,  63.66,  79.287, 98.697, 134.409, 138.875),
+      d = c( 0.404,  0.557,  0.645,  0.649,  0.628,  0.599,  0.566,   0.443,   0.823),
+      e = c(-0.003, -0.004, -0.004, -0.005, -0.005, -0.005, -0.005,  -0.005,  -0.0139)
+    )
+  
+  ind <- which(deciles$decile == as.integer(decile))
+  
+  deciles <- deciles[ind, ]
+  
+  a <- deciles$a
+  b <- deciles$b
+  c <- deciles$c
+  d <- deciles$d
+  e <- deciles$e
+  
+  # lorentz distribution
+  lorentz <- (1 / ((pi * b) * (1 + ((slope - a) / b)^2)))
+  
+  # modified lorentz
+  (c * lorentz) + d + (e * slope)
+  
+}
+
+#' Channel of reduced cost
+#'
+#' Reduces cost of travel along paths that cross through channels or
+#' other aspects of a terrain that expedite travel. 
+#'
+#' @param x a cost `terrain` generated by `hf_terrain()`.
+#' @param channel an `sf` object.
+#' @param .m a numeric between 0 and 1 applied as a weight to the cost of travel.
+#'
+#' @return a `terrain` representing cost of travel.
+hf_channel <- function(x, channel, .m = 1) {
+  
+  rr <- terra::rast(
+    nrow   = x$nrow,
+    ncol   = x$ncol,
+    extent = terra::ext(x$bb8),
+    crs    = x$crs
+  )
+  
+  channel <- terra::vect(channel)
+  
+  cells <- terra::cells(rr, channel)[, 2]
+  
+  adj <- cbind(
+    "from" = as.integer(x$conductance@i + 1),
+    "to"   = as.integer(x$conductance@j + 1)
+  )
+  
+  # find incident edges, from or to cells intersecting barrier
+  i <- which(adj[, 1] %in% cells | adj[, 2] %in% cells)
+  adj <- adj[i, ]
+  
+  # want to reduce time, which means dividing conductance by .m
+  x$conductance[adj] <- (x$conductance[adj] / .m)
+  
+  return(x)
+  
+}
+
+```
+
+
 ```{r}
 
 primary_roads   <- roads |> filter(level == "P") |> st_buffer(dist = 30)
@@ -292,6 +497,48 @@ remove(primary_roads, secondary_roads, tertiary_roads)
 
 ```{r}
 #| code-fold: true
+
+#' Terrain to raster
+#'
+#' Converts a cost `terrain` into a raster representing
+#' travel cost, specifically the average cost of moving from/to each
+#' cell. Mostly useful for visualizing with `terra::plot()`
+#' as a sanity check.
+#'
+#' @param x a cost `terrain` generated by `hf_terrain()`.
+#'
+#' @return a `SpatRaster` with travel cost values.
+hf_rasterize <- function(x) {
+
+  rr <- terra::rast(
+    nrow   = x$nrow,
+    ncol   = x$ncol,
+    extent = terra::ext(x$bb8),
+    crs    = x$crs
+  )
+
+  # this part is basically what Jacob van Etten does with
+  # gdistance::raster(TransitionLayer), though that offers more options
+  # here I am just averaging the vertical and horizontal sums
+  total_row <- Matrix::rowSums(x$conductance)
+  total_col <- Matrix::colSums(x$conductance)
+
+  #logical sparse matrix, identifies number of adjacent cells
+  lm <- methods::as(x$conductance, "lMatrix")
+
+  n_row <- Matrix::rowSums(lm)
+  n_col <- Matrix::colSums(lm)
+
+  # average cost of moving from/to each cell
+  # values <- total_cost / n_adjacent
+  v_row <- total_row / n_row
+  v_col <- total_col / n_col
+
+  values <- (v_row + v_col)/2
+
+  terra::setValues(rr, (1/values))
+
+}
 
 gg <- ggplot() +
   geom_raster(
@@ -348,6 +595,114 @@ ggsave(
 :::
 
 ### To springs
+
+Function to calculate paths and travel times is in the folded code chunk below.
+
+```{r}
+#| code-fold: true
+
+#' Shortest path between points
+#'
+#' Calculate the "shortest" or least-cost paths between multiple start and end points.
+#' For each from-point, the shortest path to every to-point is calculated.
+#'
+#' @param x a cost `terrain` generated by `hf_terrain()`.
+#' @param from an `sf` specifying start locations, must be POINT or MULTIPOINT.
+#' @param to an `sf` specifying end locations, must be POINT or MULTIPOINT.
+#' @param add_cost logical, whether to include a column of travel costs.
+#'
+#' @return An `sf` object with least-cost `LINE` features and two columns: from and to.
+#'   Values in the from- and to-columns are `1:nrow(from)` and `1:nrow(to)`, respectively.
+#'   If `add_cost = TRUE`, the `sf` object also includes a travel cost column.
+hf_hike <- function(x, from, to, add_cost = FALSE) {
+  
+  from_xy <- sf::st_coordinates(from)[, 1:2, drop = FALSE]
+  to_xy   <- sf::st_coordinates(to)[, 1:2, drop = FALSE]
+  
+  rr <- terra::rast(
+    nrow   = x$nrow,
+    ncol   = x$ncol,
+    extent = terra::ext(x$bb8),
+    crs    = x$crs
+  )
+  
+  from_cells <- terra::cellFromXY(rr, from_xy)
+  to_cells   <- terra::cellFromXY(rr, to_xy)
+  
+  graph <- igraph::graph_from_adjacency_matrix(
+    x$conductance,
+    mode = "directed",
+    weighted = TRUE
+  )
+  
+  # invert conductance to get travel cost
+  igraph::E(graph)$weight <- (1 / igraph::E(graph)$weight)
+  
+  # return a list of lists of vectors of vertices on paths
+  shorties <-
+    lapply(
+      from_cells,
+      function(z) {
+        
+        res <-
+          igraph::shortest_paths(
+            graph,
+            from = z,
+            to = to_cells,
+            mode = "out"
+          )
+        
+        res$vpath
+        
+      })
+  
+  # collapse (list of lists of vectors) to (list of vectors)
+  shorties <- unlist(shorties, recursive = FALSE)
+  
+  # now we can just make a bunch of linestrings out of them
+  line_list <-
+    lapply(
+      shorties,
+      function(z) {
+        
+        cells <- as.vector(z)
+        
+        # to handle case where from-vertex == to-vertex
+        if (length(cells) == 1) cells <- rep(cells, 2)
+        
+        xy <- terra::xyFromCell(rr, cells)
+        
+        sf::st_linestring(xy)
+        
+      }
+    )
+  
+  # and then an sf
+  sf_col <- sf::st_sfc(line_list, crs = x$crs)
+  
+  short_paths <- sf::st_sf(geometry = sf_col)
+  
+  # add indices
+  short_paths <- transform(
+    short_paths,
+    from = rep(1:nrow(from_xy), each = nrow(to_xy)),
+    to   = rep(1:nrow(to_xy), times = nrow(from_xy))
+  )
+  
+  if (add_cost) {
+    
+    cost <- igraph::distances(graph, from_cells, to_cells, mode = "out")
+    
+    short_paths <- transform(short_paths, cost = c(t(cost)))
+    
+  }
+  
+  return(short_paths)
+  
+}
+
+```
+
 
 ```{r}
 
@@ -430,6 +785,11 @@ remove(north, south, out_north, out_south)
 ```{r}
 #| code-fold: true
 
+od_points <- bind_rows(
+  od_points |> mutate(destination = ifelse(variable == "spring", "To springs", "To cities")),
+  od_points |> filter(variable == "cluster") |> mutate(destination = "To springs")
+)
+
 paths <- bind_rows(
   to_springs |> mutate(destination = "To springs"),
   to_cities |> mutate(destination = "To cities")
@@ -474,13 +834,13 @@ gg <- ggplot() +
     color = "#00291D",
     linewidth = 0.2
   ) +
-  facet_wrap(vars(destination)) +
   geom_sf(
     data = od_points, 
     aes(shape = variable, fill = variable, color = variable),
     stroke = 0.3,
-    size = ifelse(od_points$variable == "city", 2.2, 1.5) |> rep(2)
+    size = ifelse(od_points$variable == "city", 2.2, 1.5)
   ) +
+  facet_wrap(vars(destination)) +
   scale_color_manual(values = c("grey15", "white", "white")) +
   scale_fill_manual(values = alpha(c(point_colors, 0.75))) +
   scale_shape_manual(values = c(23, 22, 21)) +

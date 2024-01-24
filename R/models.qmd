@@ -55,15 +55,14 @@ We want to know what motivates market-integrated, subsistence ranchers to live w
 library(MASS)
 library(broom)
 library(car)
-library(dplyr)
-library(ggplot2)
 library(here)
 library(gt)
 library(patchwork)
-library(purrr)
 library(sf)
 library(sfdep)
-library(tidyr)
+library(terra)
+library(tidyterra)
+library(tidyverse)
 library(viridis)
            
 ```
@@ -121,7 +120,7 @@ model_table <- function(x){
       heading.border.bottom.style = "hidden",
       row.striping.background_color = "gray96",
       row.striping.include_stub = FALSE,
-      row.striping.include_table_body = TRUE,
+      # row.striping.include_table_body = TRUE,
       table.align = "left",
       table.border.top.style = "hidden",
       table.border.bottom.style = "hidden"
@@ -195,6 +194,141 @@ clusters <-
 remove(path_to_cities, path_to_springs, security, ranches)
 
 ```
+
+### Topography
+
+For additional context, here's what the terrain looks like.
+
+```{r}
+
+elevation <- here("data", "dem_30m.tif") |> rast()
+
+elevation_stats <- global(
+  elevation, 
+  fun = c("min", "max", "mean", "sd"), 
+  na.rm = TRUE
+)
+
+```
+
+```{r}
+#| code-fold: true
+
+elevation_stats |> 
+  pivot_longer(
+    everything(), 
+    names_to = "statistic",
+    values_to = "value"
+  ) |> 
+  gt() |> 
+  tab_header("Elevation") |> 
+  fmt_number(-statistic, decimals = 1) |> 
+  cols_width(statistic ~ px(125)) |> 
+  tab_options(
+    column_labels.hidden = TRUE,
+    data_row.padding = px(6),
+    heading.align = "left",
+    heading.border.bottom.style = "hidden",
+    row.striping.background_color = "gray96",
+    row.striping.include_stub = FALSE,
+    row.striping.include_table_body = TRUE,
+    table.align = "left",
+    table.border.top.style = "hidden",
+    table.border.bottom.style = "hidden"
+  )
+
+```
+
+```{r}
+#| code-fold: true 
+#| fig-width: 6.5
+#| out-width: "50%"
+
+hill <- shade(
+  terrain(elevation, "slope", unit = "radians"), 
+  terrain(elevation, "aspect", unit = "radians"), 
+  angle = 30, 
+  direction = seq(45, 360, by = 45)
+)
+
+hill <- setValues(hill, scales::rescale(values(hill), to = c(1, 1000)))
+hill <- round(hill)
+  
+ggplot() +
+  geom_spatraster(
+    data = hill, 
+    fill = hcl.colors(1000, "Grays")[values(hill)],
+    alpha = 0.75,
+    maxcell = Inf
+  ) +
+  geom_spatraster(data = elevation, alpha = 0.5) +
+  scale_fill_hypso_c(
+    name = "Elevation (m)",
+    palette = "utah_1",
+    limits = elevation_stats[, c("min", "max")] |> t() |> c(),
+    alpha = 0.5,
+    na.value = "transparent"
+  ) +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    legend.position = "none"
+  )
+
+```
+
+### Data Summary
+
+```{r}
+
+data_summary <- function(x, .m, .v){
+  
+  .f <- list(min = min, max = max, mean = mean, sd = sd)
+  
+  x |> 
+    st_drop_geometry() |> 
+    mutate(model = .m) |> 
+    group_by(model) |> 
+    summarize(across({{ .v }}, .fns = .f)) |> 
+    pivot_longer(
+      -model, 
+      names_sep = "_", 
+      names_to = c("variable", "statistic")
+    ) |> 
+    pivot_wider(
+      names_from = statistic,
+      values_from = value
+    )
+  
+}
+
+variable_summary <- bind_rows(
+  clusters |> data_summary("Binomial", c(occupied, springs, paz)),
+  clusters |> filter(population > 0) |> data_summary("Poisson", c(population, springs, cities, secure))
+)
+
+remove(data_summary)
+
+write_csv(variable_summary, here("data", "variable-summary.csv"))
+
+variable_summary |> 
+  group_by(model) |> 
+  gt() |> 
+  fmt_number(decimals = 2) |> 
+  tab_options(
+      column_labels.font.weight = "bold",
+      data_row.padding = px(6),
+      heading.align = "left",
+      heading.border.bottom.style = "hidden",
+      row_group.as_column = TRUE,
+      table.border.top.style = "hidden",
+      table.border.bottom.style = "hidden"
+    ) |> 
+    sub_missing(missing_text = "")
+
+```
+
 
 ## Analysis
 
@@ -276,7 +410,7 @@ A model of variance inflation tests for multi-collinearity in the predictors.
 ```{r}
 
 vif <- models |> 
-  map(vif) |> 
+  map(car::vif) |> 
   bind_rows(.id = "model")
 
 ```
@@ -345,7 +479,8 @@ lrt |>
   tab_header(
     title = "Likelihood Ratio Test",
     subtitle = "Alternative: difference in log-likelihood greater than zero"
-  )
+  ) |> 
+  cols_width(model ~ pct(21.5))
 
 ```
 
@@ -377,9 +512,9 @@ vif <- vif |>
 vif |> 
   model_table() |> 
   tab_header(
-    title = "Variance Inflation",
-    subtitle = "Alternative: "
-  )
+    title = "Variance Inflation"
+  ) |> 
+  cols_width(model ~ pct(21.5))
 
 ```
 
