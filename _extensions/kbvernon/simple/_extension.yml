@@ -7,12 +7,13 @@ contributes:
       documentclass: article
       papersize: letter
       fontsize: 12pt
-      linestretch: 1.85
+      linestretch: 1.8
+      csl: apa.csl
 
       # Template pieces
       template-partials:
-        - "title.tex"
-        - "before-body.tex"
+        - "partials/title.tex"
+        - "partials/before-body.tex"
       include-in-header:
         - "include-in-header.tex"
       
