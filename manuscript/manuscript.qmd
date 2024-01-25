@@ -221,16 +221,16 @@ two generalized linear models (GLMs). We use the first GLM to evaluate whether
 market integration or local ecology has played a larger role in structuring the
 distribution of occupied and abandoned ranch clusters. For this model we assume
 that the dependent variable, whether a ranch cluster is occupied or abandoned,
-has a binomial distribution and is related to the linear predictor by the logit
+has a Bernoulli distribution and is related to the linear predictor by the logit
 link: $$
 \begin{aligned}
-Y &\sim B(n, p) \\
-E[Y/n] &= p \\
+Y &\sim B(1, p) \\
+E[Y] &= p \\
 logit(p) &= \beta_{0} + \beta_{1} D(La\; Paz) + \beta_{2} D(Springs)
 \end{aligned}
-$$ with $n$ being the number of ranch clusters, $p$ the probability that a ranch
-cluster is occupied, and $D(x)$ the travel time from a ranch cluster to $x$ (see
-below for more details about how we calculate this).
+$$ with $p$ being the probability that a ranch cluster is occupied and $D(x)$
+the travel time from a ranch cluster to $x$ (see below for more details about
+how we calculate this).
 
 We use the second GLM to identify which variable contributes more to the
 distribution of rancher populations across currently occupied clusters, with an
