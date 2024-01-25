@@ -49,8 +49,9 @@ This repository contains the data and code for our paper:
 All scripts for conducting analysis and generating figures assume that
 the data can be found in a GeoPackage database called
 `data/western-fremont.gpkg`. Unfortunately, a GeoPackage is not amenable
-to git integration, so we note two ways to reconstruct it here. First, by running the necessary scripts. Assuming you're in the `baja-ranching` project folder, the following
-is sufficient to build a local copy of the database:  
+to git integration, so there are scripts to build it and in the process generate
+additional data required for analysis. Assuming you're in the `baja-ranching` 
+project folder, the following is sufficient to build a local copy of the database:  
 
 ```r
 library(here)
