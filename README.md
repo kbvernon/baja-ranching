@@ -63,10 +63,16 @@ here("R", "least-cost-paths.qmd") |> quarto_render()
 
 ## 📈 Replicate analysis
 
-To replicate the analysis, it's sufficient to compile the Quarto document `models.qmd`. 
+Once you have the geopackage built, the code to replicate the analysis and
+generate the figures is this: 
 
-```
+```r
+# needs to be run in this order
+here("R", "overview-map.R") |> source()
+
 here("R", "models.qmd") |> quarto_render()
+
+here("R", "prepare-images-for-publication.R") |> source()
 ```
 
 ## License  
