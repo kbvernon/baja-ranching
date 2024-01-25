@@ -93,13 +93,14 @@ with modern markets.
 
 To explore this issue, we focus on a small group of historically marginalized
 rural ranchers living in the arid Sierra de la Giganta region of Baja California
-Sur (BCS), Mexico [@macfarlan2020a, see @fig-overview-map]. We first explore how
-market integration and local ecology structure the distribution of occupied and
-abandoned ranch clusters. This is a process that took place over several hundred
-years, with the shift to its current distribution beginning in the late 1970s,
-following construction of the transpeninsular Federal Highway 1 [@barkenbus1974;
-@mathes2015]. We then ask how market integration and local ecology have shaped
-the distribution of the population across occupied clusters today.
+Sur (BCS), Mexico [@macfarlan_etal2020b, see @fig-overview-map]. We first
+explore how market integration and local ecology structure the distribution of
+occupied and abandoned ranch clusters. This is a process that took place over
+several hundred years, with the shift to its current distribution beginning in
+the late 1970s, following construction of the transpeninsular Federal Highway 1
+[@barkenbus1974; @mathes2015]. We then ask how market integration and local
+ecology have shaped the distribution of the population across occupied clusters
+today.
 
 ## Historical Context
 
@@ -132,8 +133,8 @@ infrastructure, rancheros depend almost entirely on surficial springs to satisfy
 their water needs, including drinking water for themselves and their livestock,
 as well as irrigation for garden plots (known as huertas and jardines), which
 provide a small supplement to human and livestock diets during dry periods
-[@macfarlan2020a; @macfarlan_etal2020a; @schniter2021; @lerback2022]. To make
-use of springs, ranchers either have to pump water themselves, using gas or
+[@macfarlan_etal2020b; @macfarlan_etal2020a; @schniter2021; @lerback2022]. To
+make use of springs, ranchers either have to pump water themselves, using gas or
 solar powered equipment, or transport it by gravity irrigation [@lerback2022]. A
 strong incentive thus exists to locate in closer proximity to these water
 resources.
@@ -165,14 +166,14 @@ change as the pace of privatization and shifting land tenure accelerates
 In BCS (along with the rest of Mexico), the Agrarian Land Reforms of 1992 played
 an outsized role in driving these changes, as they introduced powerful new
 incentives for *ejidos* to parcelize collective land holds and allocate private
-rights to individuals [@barnes2009]. While note the sole cause, this new
-property regime has increased uncertainty and insecurity about land title and
-exposed the region to speculation from real estate markets. As has happened
-elsewhere, these privatization efforts appear to be led by NGOs, commercial
-interests, and other external forces, with the result being greater
-fragmentation of pastoral rangeland systems and increased uncertainty about land
-use [@burnsilver_etal2008; @galvin2009]. For the rural ranchers of the Sierra de
-la Giganta, this process of fragmentation and increasing insecurity at least
+rights to individuals [@barnes2009]. While not the sole cause, this new property
+regime has increased uncertainty and insecurity about land title and exposed the
+region to speculation from real estate markets. As has happened elsewhere, these
+privatization efforts appear to be led by NGOs, commercial interests, and other
+external forces, with the result being greater fragmentation of pastoral
+rangeland systems and increased uncertainty about land use
+[@burnsilver_etal2008; @galvin2009]. For the rural ranchers of the Sierra de la
+Giganta, this process of fragmentation and increasing insecurity at least
 partially explains why ranches of related individuals tend to cluster.
 Rancheros, unable to find new land for themselves, simply build ranches next to
 their kin on land that is at least historically associated with their family.
@@ -208,10 +209,10 @@ by columnar cacti and xeric scrub [@shreve_wiggins1964;
 that averages only 200 mm of rainfall every year [@rebman_roberts2012]. This
 circumstance is not helped by the lack of surficial freshwater stocks
 [@maya1997], with the only permanent sources of naturally occurring freshwater
-being arid-land springs [@grismer1993; @macfarlan2020a; @macfarlan_etal2020a;
-@macfarlan2021]. @lerback2022 provides a fine-grained analysis of these spring
-systems in the project area, describing them as primarily lentic pools at low
-points in the arroyos (see @fig-context-photos B).
+being arid-land springs [@grismer1993; @macfarlan_etal2020b;
+@macfarlan_etal2020a; @macfarlan_etal2021]. @lerback2022 provides a fine-grained
+analysis of these spring systems in the project area, describing them as
+primarily lentic pools at low points in the arroyos (see @fig-context-photos B).
 
 ## Models
 
@@ -503,7 +504,7 @@ is an artifact of our analytic framework, which required us to collapse the
 temporal dimension of this largely historical process. Historical and
 ethnographic evidence suggest that as the first Euro-American colonists entered
 this region in the 18th century, they occupied the largest springs in close
-proximity to arable land [@crosby1994; @macfarlan_etal2020;
+proximity to arable land [@crosby1994; @macfarlan_etal2020b;
 @macfarlan_etal2021]. As the population expanded over time, individuals would
 move up or down drainages, to the next closest spring that could support
 subsistence needs. After time, ranchers likely saturated the landscape by
