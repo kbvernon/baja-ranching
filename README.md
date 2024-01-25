@@ -69,9 +69,7 @@ generate the figures is this:
 ```r
 # needs to be run in this order
 here("R", "overview-map.R") |> source()
-
 here("R", "models.qmd") |> quarto_render()
-
 here("R", "prepare-images-for-publication.R") |> source()
 ```
 
