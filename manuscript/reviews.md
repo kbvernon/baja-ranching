@@ -137,24 +137,36 @@ conceptual choices. Revise and resubmit.
 
 1.  Overall Impression $$ 3 $$ poor 1 2 3 4 5 good
 
-2.  Significance? $$x $$ Yes $$        $$ No
+2.  Significance? $$x $$ Yes
+    $$                                                                $$ No
 
-3.  Originality? $$        $$ Yes $$ x$$ No
+3.  Originality?
+    $$                                                                $$ Yes
+    $$ x$$ No
 
-4.  Relevance? (Within journal aims and scope) $$ v $$ Yes $$        $$ No
+4.  Relevance? (Within journal aims and scope) $$ v $$ Yes
+    $$                                                                $$ No
 
-5.  Presentation and organization? $$        $$ Yes $$ x $$ No
+5.  Presentation and organization?
+    $$                                                                $$ Yes
+    $$ x $$ No
 
-6.  Adequate submission category? $$x $$ Yes $$        $$ No
+6.  Adequate submission category? $$x $$ Yes
+    $$                                                                $$ No
 
 7.  Conclusion clear and adequate? Supported by evidence? $$ x $$ Yes
-    $$        $$ No
+    $$                                                                $$ No
 
-8.  Adequate literature review? $$        $$ Yes $$ x $$ No
+8.  Adequate literature review?
+    $$                                                                $$ Yes
+    $$ x $$ No
 
-9.  Contains transdisciplinary features? $$ x $$ Yes $$        $$ No
+9.  Contains transdisciplinary features? $$ x $$ Yes
+    $$                                                                $$ No
 
-10. Comprehensible for experts in other fields? $$        $$ Yes $$ x $$ No
+10. Comprehensible for experts in other fields?
+    $$                                                                $$ Yes
+    $$ x $$ No
 
 The paper examines the market integration and availability of natural resources
 (water) as determinants of settlement choices among subsistence farmers in Baja

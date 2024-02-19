@@ -165,15 +165,15 @@ change as the pace of privatization and shifting land tenure accelerates
 
 In BCS (along with the rest of Mexico), the Agrarian Land Reforms of 1992 played
 an outsized role in driving these changes, as they introduced powerful new
-incentives for *ejidos* to parcelize collective land holds and allocate private
-rights to individuals [@barnes2009]. While not the sole cause, this new property
-regime has increased uncertainty and insecurity about land title and exposed the
-region to speculation from real estate markets. As has happened elsewhere, these
-privatization efforts appear to be led by NGOs, commercial interests, and other
-external forces, with the result being greater fragmentation of pastoral
-rangeland systems and increased uncertainty about land use
-[@burnsilver_etal2008; @galvin2009]. For the rural ranchers of the Sierra de la
-Giganta, this process of fragmentation and increasing insecurity at least
+incentives for *ejidos* to parcelize collective land holdings and allocate
+private rights to individuals [@barnes2009]. While not the sole cause, this new
+property regime has increased uncertainty and insecurity about land title and
+exposed the region to speculation from real estate markets. As has happened
+elsewhere, these privatization efforts appear to be led by NGOs, commercial
+interests, and other external forces, with the result being greater
+fragmentation of pastoral rangeland systems and increased uncertainty about land
+use [@burnsilver_etal2008; @galvin2009]. For the rural ranchers of the Sierra de
+la Giganta, this process of fragmentation and increasing insecurity at least
 partially explains why ranches of related individuals tend to cluster.
 Rancheros, unable to find new land for themselves, simply build ranches next to
 their kin on land that is at least historically associated with their family.
@@ -184,7 +184,7 @@ This is done by estimating their contribution within a regression framework to
 the location and size of ranch clusters in two east-west running watersheds
 along the southern extent of the Sierra de la Giganta range. Given the extreme
 ecological constraints that characterize this region, especially the aridity of
-the region, we expect water management to play a substantial role in individual
+the region, we expect water resources to play a substantial role in individual
 settlement decisions. Privatization may impose an additional constraint on this
 system, especially as it has served to increase land insecurity.
 
@@ -222,15 +222,15 @@ market integration or local ecology has played a larger role in structuring the
 distribution of occupied and abandoned ranch clusters. For this model we assume
 that the dependent variable, whether a ranch cluster is occupied or abandoned,
 has a Bernoulli distribution and is related to the linear predictor by the logit
-link: $$
+link:$$
 \begin{aligned}
 Y &\sim B(1, p) \\
 E[Y] &= p \\
 logit(p) &= \beta_{0} + \beta_{1} D(La\; Paz) + \beta_{2} D(Springs)
 \end{aligned}
-$$ with $p$ being the probability that a ranch cluster is occupied and $D(x)$
-the travel time from a ranch cluster to $x$ (see below for more details about
-how we calculate this).
+$$ {#eq-logit-model} with $p$ being the probability that a ranch cluster is
+occupied and $D(x)$ the travel time from a ranch cluster to $x$ (see below for
+more details about how we calculate this).
 
 We use the second GLM to identify which variable contributes more to the
 distribution of rancher populations across currently occupied clusters, with an
@@ -238,18 +238,18 @@ additional variable representing land security, or the proportion of ranch
 houses within a cluster having clear title to their property, as this may
 mediate ranch population size. For this model, we assume that the dependent
 variable, the population size of a ranch cluster, has a negative binomial
-distribution and is related to the linear predictor by the log link: $$
+distribution and is related to the linear predictor by the log link:$$
 \begin{aligned}
 Y &\sim NB(\lambda, k) \\
 E[Y] &= \lambda \\
 log(\lambda) &= \beta_{0} + \beta_{1} D(Cities) + \beta_{2}D(Springs) + \beta_{3} P(Security)
 \end{aligned}
-$$ with $\lambda$ being the average number of individuals per ranch cluster, $k$
-a dispersion parameter, and $P(Security)$ the proportion of ranches in a ranch
-cluster that are secure. The use of a negative binomial rather than the standard
-Poisson model for count data is preferred here to account for dispersion, or
-circumstances in which the variance deviates from the mean, which violates a key
-assumption of the Poisson distribution.
+$$ {#eq-poisson-model} with $\lambda$ being the average number of individuals
+per ranch cluster, $k$ a dispersion parameter, and $P(Security)$ the proportion
+of ranches in a ranch cluster that are secure. The use of a negative binomial
+rather than the standard Poisson model for count data is preferred here to
+account for dispersion, or circumstances in which the variance deviates from the
+mean, which violates a key assumption of the Poisson distribution.
 
 Before continuing, we would like to emphasize an important historical dimension
 to this research, namely, that the process leading to the current distribution
@@ -287,7 +287,7 @@ environment. In the binomial GLM, which examines the distribution of abandoned
 versus active ranching clusters, we use only travel time to La Paz (i) as Ciudad
 Constitucion did not offer a significant market when those locations were being
 established. We then use travel time to both Ciudad Constitucion and La Paz (ii)
-in the negative binomial GLM examining ranch-cluster population sizes. travel
+in the negative binomial GLM examining ranch-cluster population sizes. Travel
 time to springs (iii) is used in both models, on the assumption that the
 location of active streams would not have changed during the period of time in
 question [@grismer1993].
@@ -404,7 +404,7 @@ second model examines how local ecology and market integration influence the
 distribution of the population across occupied ranch clusters today. The model
 shows that population size across occupied ranch clusters negatively co-varies
 with travel time to cities ($\beta$ = -0.802, *p* \< 0.001), for both
-Constitucion and La Paz, but does not significantly co-vary with travel time to
+Constitucion and La Paz, but is not significantly correlated with travel time to
 springs ($\beta$ = 0.699, *p* = 0.299) (@tbl-coefficients, @fig-response-plots).
 The model with an additive land security term suggests that more secure ranch
 clusters have slightly smaller populations, but the effect is non-significant
@@ -441,31 +441,32 @@ by markets, which pull people closer to the cities.
 
 One important advantage of this research concerns the use of travel time as a
 measure of both market integration and local adaptation. Using this simple
-metric has a number of advantages. First, it provides a straightforward way of
-evaluating the relative contribution of each variable to the outcome of
-interest, in this case, settlement decisions among rural ranchers. Second, it
-conforms with geographic theory regarding spatial interactions and dependence
-(otherwise known as Tobler's Law, @tobler1970) and overcomes known limitations
-of Euclidean distance as a cost measure. Finally, it is a relatively simple
-matter to derive those cost estimates from easily accessible remote-sensed
-elevation and road network data held in online repositories. High resolution
-informant data, on the other hand, are generally difficult and costly to
-acquire, often with little chance of providing the right sort of overlap between
-different variables required for fair comparisons.
+metric has a number of advantages. First, it is corroborated by previous
+research [@johansson_etal2002; @corsi_etal2017]. Second, it provides a
+straightforward way of evaluating the relative contribution of each variable to
+the outcome of interest, in this case, settlement decisions among rural
+ranchers. Third, it conforms with geographic theory regarding spatial
+interactions and dependence (otherwise known as Tobler's Law, [@tobler1970]) and
+overcomes known limitations of Euclidean distance as a cost measure. Finally, it
+is a relatively simple matter to derive those cost estimates from easily
+accessible remote-sensed elevation and road network data held in online
+repositories. High resolution informant data, on the other hand, are generally
+difficult and costly to acquire, often with little chance of providing the right
+sort of overlap between different variables required for fair comparisons.
 
 It is true, as @mattison2022 point out, that market integration is a
 multi-dimensional process, making it at first blush an awkward concept to try
 and capture in a single variable like travel time or caloric-intake
 [@henrich2010]. Still, Tobler's Law would seem to suggest that all the variables
-strongly associated with market integration will also co-vary with proximity to
-cities and their markets. In other words, the costs and benefits of market
-integration will positively co-vary with access to markets - both will increase
-as one gains greater access to and interacts more often with markets. So, the
-closer individuals are, the more likely they should be to derive their caloric
-requirements from cities, to work in cities, to own televisions, cellphones, and
-other goods sold in cities, but also the more likely they should be to face
-intense competition for jobs, higher rents, and other costs associated with
-living in that proximity.
+strongly associated with market integration will also be correlated with
+proximity to cities and their markets. In other words, the costs and benefits of
+market integration will be positively correlated with access to markets - both
+will increase as one gains greater access to and interacts more often with
+markets. So, the closer individuals are, the more likely they should be to
+derive their caloric requirements from cities, to work in cities, to own
+televisions, cellphones, and other goods sold in cities, but also the more
+likely they should be to face intense competition for jobs, higher rents, and
+other costs associated with living in that proximity.
 
 The ranchers in our study population also recognize that those who live closer
 to the trans-peninsular highway have greater access to markets and are more
@@ -532,15 +533,32 @@ have been exhausted, resulting in the highest population densities.
 
 Our measure of land security proved to be non-significant in our model. Rather
 than being an outcome from which to draw conclusions, we believe this result
-should be interpreted with caution. Our measure of land security is based on a
-combination of government data and informant observations and so likely does not
-capture the full complexity of this important issue. A larger dataset with a
-more standardized and quantifiable measure of land security would be more
-representative. We also note that the issue of land security is not equally
-salient to everyone in this population. Many of the informants that might be
-land insecure by most objective measures do not necessarily act as if their
-title to land is uncertain. This would suggest that perceptions of risk with
-respect to property rights should be studied more thoroughly.
+should be interpreted with caution as previous scholarship suggests that land
+tenure is essential for securing the livelihood of smallholders
+[@corsi_etal2017; @besley_ghatak2010; @wickeri_kalhan2010;
+@aggarwal_freudenberger2013; @dejanvry_etal2015] and ensuring sustainable
+resource management. Furthermore, our research on the effect of land security on
+ranching decision-making in this population suggests that it influences whether
+or not households engage in cattle production -- a risky economic decision in
+this arid ecosystem [@macfarlan_etal2023a]. So, what explains our negative
+result? Our argument is threefold. First, the distribution of land secure and
+insecure households is a result of changes to the property regime that happened
+in the 1990s [@dejanvry_etal2015], around the time when the distribution of
+ranches and ranching families was established, so there may be a lag effect that
+our analysis is insensitive to. With additional data on the distribution of
+households across a larger spatial area (or temporal window, for the
+establishment of new households into the future), we may find that land
+insecurity is having a real effect on individual choices. Second, our measure of
+land security is based on a combination of government data and informant
+observations and so likely does not capture the full complexity of this
+important issue. A larger dataset with a more standardized and quantifiable
+measure of land security would be more representative. Finally, we note that the
+issue of land security, particularly as that is understood as clear title, is
+not equally salient to everyone in this population [@lambrecht_asare2016]. Many
+of the informants that might be land insecure by most objective measures do not
+necessarily act as if their title to land is uncertain. This would suggest that
+perceptions of risk with respect to property rights should be studied more
+thoroughly.
 
 ## Socio-ecological consequences
 
@@ -555,12 +573,13 @@ relatedness [@peña2002]. This appears to be the result of a decreasing reliance
 on consanguineous or close-kin marriage customs, with families favoring
 expansive social networks within a market economy over stronger family ties
 within a largely agrarian economy [@shenk2016]. Currently, the ranching
-communities of BCS are characterized by more intensive kin networks, but the
-limited available evidence suggests that this might be changing, with
-individuals increasingly marrying outside of the ranching community, most likely
-to individuals living within the cities. Families are as a consequence
-increasing their connections to the cities and by extension increasing the
-incentives for integrating more closely with their markets.
+communities of BCS are characterized by more intensive kin networks
+[@macfarlan_etal2020b], but the limited available evidence suggests that this
+might be changing, with individuals increasingly marrying outside of the
+ranching community, most likely to individuals living within the cities
+[@page_etal2024]. Families are as a consequence increasing their connections to
+the cities and by extension increasing the incentives for integrating more
+closely with their markets.
 
 These settlement dynamics have also had variable ecosystem outcomes. Springs
 that exist closer to the road, which are more heavily utilized, typically
@@ -776,30 +795,11 @@ fn |> include_graphics()
 {{< pagebreak >}}
 
 ```{r}
-#| label: tbl-models
-#| fig-align: center
-#| out-width: "80%"
-
-here("data", "model-statistics.rdata") |> load()
-
-fn <- here("_misc", "tbl-models.png")
-
-model_statistics |>
-  gt() |> 
-  table_defaults() |> 
-  tab_header(title = "Summary Statistics") |> 
-  gtsave(filename = fn)
-
-fn |> include_graphics()
-
-```
-
-{{< pagebreak >}}
-
-```{r}
 #| label: tbl-coefficients
 #| fig-align: center
 #| out-width: "65%"
+
+here("data", "model-statistics.rdata") |> load()
 
 fn <- here("_misc", "tbl-coefficients.png")
 
@@ -809,6 +809,25 @@ coefficient_estimates |>
   table_defaults() |> 
   tab_stubhead("model") |> 
   tab_header(title = "Coefficient Estimates") |> 
+  gtsave(filename = fn)
+
+fn |> include_graphics()
+
+```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: tbl-models
+#| fig-align: center
+#| out-width: "80%"
+
+fn <- here("_misc", "tbl-models.png")
+
+model_statistics |>
+  gt() |> 
+  table_defaults() |> 
+  tab_header(title = "Summary Statistics") |> 
   gtsave(filename = fn)
 
 fn |> include_graphics()
