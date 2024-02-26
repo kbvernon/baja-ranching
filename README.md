@@ -40,6 +40,7 @@ This repository contains the data and code for our paper:
   ⊢ 📄 [manuscript.pdf](/manuscript/manuscript.pdf)\
   ⊢ 📄 [reviews-response.md](/manuscript/reviews-response.md)\
   ⊢ 📄 [reviews.md](/manuscript/reviews.md)\
+  ⊢ 📄 additional round of reviews, minor revisions\
 📂 [R](/R) code for preparing data and conducting analysis, including\
   ⊢ 📄 [models.qmd](/R/models.qmd) is the primary analysis,\
   ⊢ 📄 [least-cost-paths.qmd](/R/least-cost-paths.qmd),\
