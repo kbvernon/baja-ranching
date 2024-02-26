@@ -20,11 +20,12 @@ execute:
   error: false
 ---
 
+```{=html}
 <!-- 
 RStudio/Quarto is having some issues with figure sizing, 
 so using this hacky CSS solution. 
 -->
-
+```
 ```{css}
 #| echo: false
 
@@ -40,17 +41,36 @@ so using this hacky CSS solution.
 
 ## Overview
 
-**Goal:** estimate cost-distance (in time) from each ranch to Ciudad Constitucion, La Paz, and local springs.  
+**Goal:** estimate cost-distance (in time) from each ranch to Ciudad
+Constitucion, La Paz, and local springs.
 
-**Data:** a Digital Elevation Model (DEM) along with point locations for ranche clusters, springs, cities.  
+**Data:** a Digital Elevation Model (DEM) along with point locations for ranche
+clusters, springs, cities.
 
-**Method:** Campbell's hiking function [@campbell2019].  
+**Method:** Campbell's hiking function [@campbell2019].
 
-There are two watersheds in the project area. Each one has a single road that connects it to Highway 1 and thus to the markets in Ciudad Constitucion to the north and the capitol La Paz to the south. The "road" that connects the watersheds to each other is not maintained and thus rarely used. As a consequence, nearly all of the variance in travel time to cities is found within each watershed. For that reason, we estimate the time it takes to leave each watershed ("leaving" here means hitting the edge of the project area), rather than the true time it takes to get to each city. We interpret this as the relative difference in time it takes to get to Ciudad Constitucion from the northern watershed and the relative difference in time it takes to get to La Paz from the southern watershed. To get to La Paz from the northern watershed, we simply add an arbitrary half hour to the total time to get out of that watershed. The same would presumably be the case to get to Ciudad Constitucion from the southern watershed, though that value does not factor into our analysis. 
+There are two watersheds in the project area. Each one has a single road that
+connects it to Highway 1 and thus to the markets in Ciudad Constitucion to the
+north and the capitol La Paz to the south. The "road" that connects the
+watersheds to each other is not maintained and thus rarely used. As a
+consequence, nearly all of the variance in travel time to cities is found within
+each watershed. For that reason, we estimate the time it takes to leave each
+watershed ("leaving" here means hitting the edge of the project area), rather
+than the true time it takes to get to each city. We interpret this as the
+relative difference in time it takes to get to Ciudad Constitucion from the
+northern watershed and the relative difference in time it takes to get to La Paz
+from the southern watershed. To get to La Paz from the northern watershed, we
+simply add an arbitrary half hour to the total time to get out of that
+watershed. The same would presumably be the case to get to Ciudad Constitucion
+from the southern watershed, though that value does not factor into our
+analysis.
 
-For springs, Dr. MacFarlan's ethnographic data suggest that individuals residing within the same ranch cluster tend to rely on one or two springs at most. Thus, we estimate road distance to the two nearest springs and take the average.  
+For springs, Dr. MacFarlan's ethnographic data suggest that individuals residing
+within the same ranch cluster tend to rely on one or two springs at most. Thus,
+we estimate road distance to the two nearest springs and take the average.
 
-All spatial data are projected to the Mexico ITRF92 / UTM zone 12N CRS ([EPSG:4485](epsg.io/4485)).
+All spatial data are projected to the Mexico ITRF92 / UTM zone 12N CRS
+([EPSG:4485](epsg.io/4485)).
 
 ## R Preamble
 
@@ -256,18 +276,23 @@ ggsave(
 
 ```
 
-:::{.mx-auto .my-4 .img-45}
+::: {.mx-auto .my-4 .img-45}
 ![](../figures/od-points.png)
 :::
 
 ## Path analysis
 
-To estimate least-cost paths, we first derive slope estimates from the DEM then calculate the hiking speed at which individuals can traverse any given cell using Campbell's hiking function. After that, we decrease the cost in units of time to traverse grid cells crossed by roads and other paths using weights that approximate travel times by car or horse. This is equivalent to increasing the speed one travels in those cells. Below are the specific weights we use.
+To estimate least-cost paths, we first derive slope estimates from the DEM then
+calculate the hiking speed at which individuals can traverse any given cell
+using Campbell's hiking function. After that, we decrease the cost in units of
+time to traverse grid cells crossed by roads and other paths using weights that
+approximate travel times by car or horse. This is equivalent to increasing the
+speed one travels in those cells. Below are the specific weights we use.
 
-:::{.w-50 .mx-auto .py-4}
+::: {.w-50 .mx-auto .py-4}
 | Type      | Weight | Approx. Speed     |
 |:----------|--------|:------------------|
-| primary   | 0.2    | 25 mph (41.5 kmh) | 
+| primary   | 0.2    | 25 mph (41.5 kmh) |
 | secondary | 0.5    | 10 mph (16.2 kmh) |
 | tertiary  | 0.8    | 07 mph (11.0 kmh) |
 
@@ -478,7 +503,6 @@ hf_channel <- function(x, channel, .m = 1) {
 
 ```
 
-
 ```{r}
 
 primary_roads   <- roads |> filter(level == "P") |> st_buffer(dist = 30)
@@ -590,7 +614,7 @@ ggsave(
 
 ```
 
-:::{.mx-auto .my-4 .img-45}
+::: {.mx-auto .my-4 .img-45}
 ![](../figures/cost-surface.png)
 :::
 
@@ -703,7 +727,6 @@ hf_hike <- function(x, from, to, add_cost = FALSE) {
 
 ```
 
-
 ```{r}
 
 to_springs <- hf_hike(
@@ -729,7 +752,9 @@ to_springs <-
 
 ### To cities
 
-Please note that travel time is not strictly to cities, but to the edge of the project area. As noted above, for the northern watershed, the time to La Paz equals the time it takes to leave the watershed plus half an hour. 
+Please note that travel time is not strictly to cities, but to the edge of the
+project area. As noted above, for the northern watershed, the time to La Paz
+equals the time it takes to leave the watershed plus half an hour.
 
 ```{r}
 
@@ -869,7 +894,7 @@ ggsave(
 
 ```
 
-:::{.mx-auto .my-4 .img-65}
+::: {.mx-auto .my-4 .img-65}
 ![](../figures/least-cost-paths.png)
 :::
 
