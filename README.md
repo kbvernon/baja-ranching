@@ -49,11 +49,11 @@ This repository contains the data and code for our paper:
 ## 🌎 How to Rebuild GeoPackage Database
 
 All scripts for conducting analysis and generating figures assume that the data
-can be found in a GeoPackage database called `data/western-fremont.gpkg`.
-Unfortunately, a GeoPackage is not amenable to git integration, so there are
-scripts to build it and in the process generate additional data required for
-analysis. Assuming you're in the `baja-ranching` project folder, the following
-is sufficient to build a local copy of the database:
+can be found in a GeoPackage database called `data/choyero.gpkg`. Unfortunately,
+a GeoPackage is not amenable to git integration, so there are scripts to build
+it and in the process generate additional data required for analysis. Assuming
+you're in the `baja-ranching` project folder, the following is sufficient to
+build a local copy of the database:
 
 ``` r
 library(here)
