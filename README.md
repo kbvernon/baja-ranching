@@ -44,7 +44,7 @@ This repository contains the data and code for our paper:
 📂 [R](/R) code for preparing data and conducting analysis, including\
   ⊢ 📄 [models.qmd](/R/models.qmd) is the primary analysis,\
   ⊢ 📄 [least-cost-paths.qmd](/R/least-cost-paths.qmd),\
-  ⊢ 📄 [data-wrangling.R](/R/data-wrangling.R), and\
+  ⊢ 📄 [data-wrangling.R](/R/data_wrangling.R), and\
   ⊢ 📄 [overview-map.R](/R/overview-map.R)
 
 ## 🌎 How to Rebuild GeoPackage Database
